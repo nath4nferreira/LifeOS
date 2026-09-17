@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import './NavegacaoPrincipal.css'
 
-export type Aba = 'dia' | 'adicionar' | 'alertas'
+export type Aba = 'dia' | 'adicionar' | 'alertas' | 'ajustes'
 
 interface NavegacaoPrincipalProps {
   ativa: Aba
@@ -12,6 +12,7 @@ const ITENS: { aba: Aba; rotulo: string }[] = [
   { aba: 'dia', rotulo: 'Dia' },
   { aba: 'adicionar', rotulo: 'Adicionar' },
   { aba: 'alertas', rotulo: 'Alertas' },
+  { aba: 'ajustes', rotulo: 'Ajustes' },
 ]
 
 /**
@@ -64,6 +65,20 @@ const ICONES: Record<Aba, JSX.Element> = {
         fill="none"
         strokeLinecap="round"
       />
+    </svg>
+  ),
+  ajustes: (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+      <path
+        d="M5 7h14M5 12h14M5 17h14"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <circle cx="9" cy="7" r="2.2" fill="var(--superficie)" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="15" cy="12" r="2.2" fill="var(--superficie)" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="8" cy="17" r="2.2" fill="var(--superficie)" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   ),
 }

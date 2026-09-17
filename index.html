@@ -5,6 +5,23 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>LifeOS</title>
+    <!--
+      O tema é aplicado antes de qualquer pintura, e por isso mora aqui e não
+      no React: um efeito só rodaria depois do primeiro quadro, e quem escolheu
+      escuro veria a tela branca piscar. Script sem `type="module"` de
+      propósito — módulo é adiado, e adiar é justamente o que não pode.
+    -->
+    <script>
+      try {
+        var tema = localStorage.getItem('lifeos.tema')
+        if (tema === 'claro' || tema === 'escuro') {
+          document.documentElement.dataset.theme = tema
+        }
+      } catch (e) {
+        // Navegação privada pode recusar a leitura. Sem escolha salva, o
+        // :root já segue o sistema — o padrão certo.
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

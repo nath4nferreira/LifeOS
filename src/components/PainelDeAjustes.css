@@ -1,0 +1,105 @@
+.ajustes {
+  padding: 8px 20px 24px;
+}
+
+.ajustes-titulo {
+  margin: 0 0 16px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--tinta);
+}
+
+.ajustes-grupo {
+  margin: 0 0 24px;
+  padding: 0;
+  border: none;
+  border-top: 1px solid var(--linha);
+  padding-top: 16px;
+}
+
+.ajustes-legenda {
+  margin: 0;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.ajustes-ajuda {
+  margin: 4px 0 12px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--apagado);
+}
+
+.ajustes-opcoes {
+  display: flex;
+  gap: 8px;
+}
+
+.ajustes-opcao {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+/* A opção ligada inverte tinta e superfície. O contraste é o mesmo par de
+   sempre, só trocado de lado — e `aria-pressed` diz a mesma coisa a quem não
+   enxerga a inversão. */
+.ajustes-opcao[aria-pressed='true'] {
+  border-color: var(--tinta);
+  background: var(--tinta);
+  color: var(--superficie);
+  font-weight: 600;
+}
+
+.ajustes-acao {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.ajustes-acao:disabled {
+  color: var(--apagado);
+  cursor: default;
+}
+
+/* Borda E texto na cor crítica: a cor reforça, mas o texto "Sim, recarregar"
+   já diz o que vai acontecer sem depender dela. */
+.ajustes-acao-destrutiva {
+  border-color: var(--critico);
+  color: var(--critico);
+}
+
+.ajustes-confirmar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+  border: 2px solid var(--critico);
+  border-radius: var(--raio);
+  background: var(--critico-fundo);
+  font-size: 0.8125rem;
+  color: var(--tinta);
+}
+
+.ajustes-confirmacao {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  color: var(--bom);
+}

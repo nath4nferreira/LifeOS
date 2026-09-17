@@ -19,6 +19,7 @@ import { Veredito } from './components/Veredito'
 import { PainelDeInsights } from './components/PainelDeInsights'
 import { TrilhaDoDia } from './components/TrilhaDoDia'
 import { PainelDeContexto } from './components/PainelDeContexto'
+import { PainelDeAjustes } from './components/PainelDeAjustes'
 import { FormularioEvento } from './components/FormularioEvento'
 import { NavegacaoPrincipal, type Aba } from './components/NavegacaoPrincipal'
 import './App.css'
@@ -27,7 +28,8 @@ function App() {
   const [aba, setAba] = useState<Aba>('dia')
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [dispensados, setDispensados] = useState<string[]>([])
-  const { eventos, carregando, erro, criar, atualizar, remover } = useEventos()
+  const { eventos, carregando, erro, criar, atualizar, remover, recarregarDemonstracao } =
+    useEventos()
 
   // `useAgora` faz o app renderizar a cada virada de minuto. Isso move o
   // marcador da trilha e, de quebra, resolve a virada da meia-noite: `hoje` é
@@ -199,6 +201,10 @@ function App() {
             titulo="Tudo que o LifeOS leu no seu dia"
             mostrarTodos
           />
+        )}
+
+        {!carregando && aba === 'ajustes' && (
+          <PainelDeAjustes aoRecarregarDemonstracao={recarregarDemonstracao} />
         )}
       </main>
 

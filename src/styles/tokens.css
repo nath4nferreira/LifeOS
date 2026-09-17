@@ -11,18 +11,33 @@
  *    do evento). Nunca como decoração.
  * 2. IBM Plex Mono só em relógios e números. É vocabulário de tabela de
  *    horário, não enfeite. Texto é Archivo.
+ *
+ * SOBRE OS DOIS TEMAS: cada token é declarado UMA vez, com
+ * `light-dark(claro, escuro)`. A alternativa óbvia — repetir a paleta inteira
+ * num bloco `[data-theme='escuro']` e de novo dentro de uma media query
+ * `prefers-color-scheme` — significa manter três cópias das mesmas 15 cores
+ * em sincronia na mão. A primeira versão deste arquivo fazia isso e já tinha
+ * perdido `--linha-forte` numa das cópias: no escuro do sistema, as bordas de
+ * formulário continuavam com a cor do tema claro.
+ *
+ * Quem escolhe entre os dois lados de `light-dark()` é o `color-scheme` em
+ * vigor, e é só ele que o seletor de tema troca.
  */
 
 :root {
+  /* Sem `data-theme`, os dois valores ficam disponíveis e o navegador segue
+     a preferência do sistema. É o valor inicial de quem nunca escolheu. */
+  color-scheme: light dark;
+
   /* Superfícies e tinta */
-  --fundo: #eef0f4;
-  --superficie: #ffffff;
-  --superficie-2: #e6e9ef;
-  --tinta: #14181f;
+  --fundo: light-dark(#eef0f4, #10141a);
+  --superficie: light-dark(#ffffff, #171c24);
+  --superficie-2: light-dark(#e6e9ef, #1f252f);
+  --tinta: light-dark(#14181f, #e8ecf2);
   /* #626b7a do briefing dava 4.42:1 sobre --superficie-2 e reprovava no
      mínimo de 4.5:1 da WCAG. Escurecido o suficiente para passar nas três
      superfícies (4.92:1 no pior caso) sem mudar a intenção do cinza frio. */
-  --apagado: #5b6472;
+  --apagado: light-dark(#5b6472, #8b95a5);
 
   /* Duas espessuras de linha, e a diferença é semântica:
      --linha é separador decorativo (divisória entre itens, contorno de
@@ -30,81 +45,35 @@
      e a WCAG não exige contraste de elemento decorativo.
      --linha-forte é para borda que CARREGA INFORMAÇÃO: campo de formulário,
      botão, anel de foco. Passa o mínimo de 3:1 da WCAG 1.4.11. */
-  --linha: #d3d8e0;
-  --linha-forte: #767f8e;
+  --linha: light-dark(#d3d8e0, #283040);
+  --linha-forte: light-dark(#767f8e, #6b7893);
 
-  /* Níveis de insight. Cada par é usado junto: texto sobre o fundo claro. */
-  --critico: #a4232b;
-  --critico-fundo: #fbeaeb;
-  --atencao: #8a4d00;
-  --atencao-fundo: #fbf0e2;
-  --info: #2a5f9e;
-  --info-fundo: #e8eff8;
-  --bom: #1a6b50;
-  --bom-fundo: #e5f2ed;
+  /* Níveis de insight. Cada par é usado junto: texto sobre o fundo da dupla. */
+  --critico: light-dark(#a4232b, #ff8a8a);
+  --critico-fundo: light-dark(#fbeaeb, #2a1719);
+  --atencao: light-dark(#8a4d00, #e5a54d);
+  --atencao-fundo: light-dark(#fbf0e2, #291f12);
+  --info: light-dark(#2a5f9e, #7fb3e8);
+  --info-fundo: light-dark(#e8eff8, #141f2c);
+  --bom: light-dark(#1a6b50, #6ecfa8);
+  --bom-fundo: light-dark(#e5f2ed, #12241d);
 
   --sans: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
   --raio: 6px;
+}
 
-  /* Faz o navegador desenhar barra de rolagem e controles nativos no tema
-     certo. Sem isto, um select ou um input aparece claro no tema escuro. */
+/**
+ * A escolha manual, gravada como `data-theme` no elemento raiz.
+ *
+ * Fixar `color-scheme` num único valor resolve `light-dark()` para aquele
+ * lado e, de quebra, faz o navegador desenhar barra de rolagem, `select` e
+ * seletor de data no tema certo — coisas que nenhuma variável CSS alcança.
+ */
+:root[data-theme='claro'] {
   color-scheme: light;
 }
 
-/**
- * Tema escuro.
- *
- * A troca é por atributo `data-theme` no elemento raiz, e não só por media
- * query: o usuário precisa poder escolher manualmente nos ajustes. A media
- * query abaixo define apenas o VALOR INICIAL, para quem nunca escolheu.
- */
-[data-theme='escuro'] {
-  --fundo: #10141a;
-  --superficie: #171c24;
-  --superficie-2: #1f252f;
-  --tinta: #e8ecf2;
-  --apagado: #8b95a5;
-  --linha: #283040;
-  --linha-forte: #6b7893;
-
-  --critico: #ff8a8a;
-  --critico-fundo: #2a1719;
-  --atencao: #e5a54d;
-  --atencao-fundo: #291f12;
-  --info: #7fb3e8;
-  --info-fundo: #141f2c;
-  --bom: #6ecfa8;
-  --bom-fundo: #12241d;
-
+:root[data-theme='escuro'] {
   color-scheme: dark;
-}
-
-/**
- * Sistema no escuro e usuário sem escolha registrada.
- *
- * A paleta se repete aqui de propósito: o seletor precisa ser um `:root` que
- * ignora quem já escolheu `claro`, e CSS não permite reaproveitar um bloco de
- * declarações dentro de uma media query. Ao mexer em cor, mexa nos dois.
- */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='claro']) {
-    --fundo: #10141a;
-    --superficie: #171c24;
-    --superficie-2: #1f252f;
-    --tinta: #e8ecf2;
-    --apagado: #8b95a5;
-    --linha: #283040;
-
-    --critico: #ff8a8a;
-    --critico-fundo: #2a1719;
-    --atencao: #e5a54d;
-    --atencao-fundo: #291f12;
-    --info: #7fb3e8;
-    --info-fundo: #141f2c;
-    --bom: #6ecfa8;
-    --bom-fundo: #12241d;
-
-    color-scheme: dark;
-  }
 }
