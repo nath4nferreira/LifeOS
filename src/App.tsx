@@ -1,105 +1,65 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { gerarInsights, resumoDoDia, vereditoDoDia } from './core/insights'
+import type { EventoBase, Previsao } from './types'
+import { FaixaDeStatus } from './components/FaixaDeStatus'
+import { Veredito } from './components/Veredito'
+import { NavegacaoInferior, type Aba } from './components/NavegacaoInferior'
 import './App.css'
 
+/**
+ * Dados de demonstração (seção 15 do briefing). Moram aqui até a etapa 9
+ * trazer `RepositorioLocal` e um hook de eventos — depois disso isto sai do
+ * componente e vira estado carregado de verdade.
+ */
+const EVENTOS_DE_HOJE: EventoBase[] = [
+  { id: 'trabalho-manha', nome: 'Trabalho', categoria: 'trabalho', inicio: '09:00', fim: '12:00', deslocamento: 0 },
+  { id: 'almoco', nome: 'Almoço', categoria: 'pessoal', inicio: '12:00', fim: '13:00', deslocamento: 0 },
+  { id: 'trabalho-tarde', nome: 'Trabalho', categoria: 'trabalho', inicio: '14:30', fim: '17:30', deslocamento: 0 },
+  { id: 'academia', nome: 'Academia', categoria: 'saude', inicio: '18:00', fim: '19:00', deslocamento: 15 },
+  { id: 'faculdade', nome: 'Faculdade', categoria: 'estudos', inicio: '19:30', fim: '22:30', deslocamento: 25 },
+]
+
+/**
+ * O serviço de clima chega na etapa 15 com a rota serverless. Até lá o
+ * contexto de clima é tratado como indisponível — exatamente como quando a
+ * API falha de verdade — e o resto do app segue funcionando normalmente.
+ */
+const PREVISAO_DEMO: Previsao | null = null
+
+/** Data de hoje em ISO. `core/` e `utils/` nunca leem o relógio; quem lê é a interface. */
+function hojeISO(): string {
+  const agora = new Date()
+  const mes = String(agora.getMonth() + 1).padStart(2, '0')
+  const dia = String(agora.getDate()).padStart(2, '0')
+  return `${agora.getFullYear()}-${mes}-${dia}`
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [aba, setAba] = useState<Aba>('dia')
+
+  const insights = gerarInsights(EVENTOS_DE_HOJE, PREVISAO_DEMO)
+  const { comprometido, emAberto } = resumoDoDia(EVENTOS_DE_HOJE)
+  const veredito = vereditoDoDia(insights, comprometido)
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-shell">
+      <FaixaDeStatus data={hojeISO()} previsao={PREVISAO_DEMO} />
 
-      <div className="ticks"></div>
+      <main className="app-conteudo">
+        {aba === 'dia' && (
+          <Veredito
+            texto={veredito}
+            comprometido={comprometido}
+            emAberto={emAberto}
+            pontos={insights.length}
+          />
+        )}
+        {aba === 'adicionar' && <p className="em-construcao">Em construção.</p>}
+        {aba === 'alertas' && <p className="em-construcao">Em construção.</p>}
+      </main>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <NavegacaoInferior ativa={aba} aoSelecionar={setAba} />
+    </div>
   )
 }
 

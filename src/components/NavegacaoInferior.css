@@ -1,0 +1,32 @@
+.navegacao-inferior {
+  display: flex;
+  border-top: 1px solid var(--linha);
+  background: var(--superficie);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navegacao-inferior-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 6px 4px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--apagado);
+  cursor: pointer;
+}
+
+.navegacao-inferior-item[aria-current='page'] {
+  color: var(--tinta);
+}
+
+.navegacao-inferior-item:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: -2px;
+}
