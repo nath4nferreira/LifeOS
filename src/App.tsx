@@ -7,6 +7,7 @@ import {
 } from './core/insights'
 import { eventosDoDia } from './core/seletor'
 import { useEventos } from './hooks/useEventos'
+import { usePrevisao } from './hooks/usePrevisao'
 import { PREVISAO_DE_DEMONSTRACAO } from './services/demonstracao'
 import { hojeISO } from './services/relogio'
 import { rotuloDoDia, somarDias } from './utils/tempo'
@@ -18,12 +19,6 @@ import { TrilhaDoDia } from './components/TrilhaDoDia'
 import { FormularioEvento } from './components/FormularioEvento'
 import { NavegacaoInferior, type Aba } from './components/NavegacaoInferior'
 import './App.css'
-
-/**
- * A rota serverless de clima chega na etapa 15. Até lá a previsão fixa da
- * seção 15 alimenta as regras 3 e 4.
- */
-const PREVISAO = PREVISAO_DE_DEMONSTRACAO
 
 function App() {
   const [aba, setAba] = useState<Aba>('dia')
@@ -43,10 +38,13 @@ function App() {
   const seguinte = somarDias(data, 1)
   const transicao = insightsDeTransicao(doDia, eventosDoDia(eventos, seguinte))
 
-  // A previsão que temos é a de hoje. Em qualquer outro dia o contexto de
-  // clima é honestamente ausente, e as regras 3 e 4 simplesmente não opinam —
-  // é o mesmo caminho de degradação de quando a API de clima falha.
-  const previsao = data === hoje ? PREVISAO : null
+  // O clima real vem da rota serverless; o de exemplo só entra se o usuário
+  // pedir, e nesse caso a faixa de status diz que é exemplo. Dado fabricado
+  // nunca se disfarça de medido.
+  const [usandoExemplo, setUsandoExemplo] = useState(false)
+  const clima = usePrevisao(data)
+  const previsao = usandoExemplo ? PREVISAO_DE_DEMONSTRACAO : clima.previsao
+  const estadoDoClima = usandoExemplo ? 'pronto' : clima.estado
 
   // A trilha entrega o id da ocorrência, que é o id do evento de origem. Se o
   // evento sumiu (excluído em outra aba), `editando` volta a ser indefinido e
@@ -94,7 +92,13 @@ function App() {
 
   return (
     <div className="app-shell">
-      <FaixaDeStatus data={data} previsao={previsao} />
+      <FaixaDeStatus
+        data={data}
+        previsao={previsao}
+        estado={estadoDoClima}
+        exemplo={usandoExemplo}
+        aoAlternarExemplo={() => setUsandoExemplo((atual) => !atual)}
+      />
       <SeletorDeData
         data={data}
         hoje={hoje}

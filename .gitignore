@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Segredos. .env.example fica versionado; o .env com a chave de verdade, não.
+.env
+.env.*
+!.env.example
+.vercel
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

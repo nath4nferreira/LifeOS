@@ -10,3 +10,34 @@
   font-size: 0.8125rem;
   color: var(--apagado);
 }
+
+.faixa-status-clima {
+  flex: 1;
+  text-align: right;
+}
+
+/* Dado de exemplo é sempre rotulado. A borda garante que o rótulo apareça
+   mesmo para quem não distingue a cor do texto ao lado. */
+.faixa-status-exemplo {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.faixa-status-acao {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 8px;
+  border: none;
+  background: none;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tinta);
+  text-decoration: underline;
+  cursor: pointer;
+}
