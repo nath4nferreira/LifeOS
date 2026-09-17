@@ -33,6 +33,28 @@
   color: var(--apagado);
 }
 
+/* O botão ocupa a linha inteira do evento: o alvo de toque é o bloco, não um
+   ícone. Sem fundo nem borda próprios — quem desenha o bloco é o `<li>`. */
+.trilha-evento-botao {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--altura-trilha);
+  padding: 0 8px 0 0;
+  border: none;
+  border-radius: var(--raio);
+  background: none;
+  font-size: 1rem;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.trilha-evento-botao:hover {
+  background: var(--superficie-2);
+}
+
 .trilha-evento-corpo {
   display: flex;
   flex: 1;

@@ -2,7 +2,9 @@ import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import type { Categoria, Evento, EventoBase } from '../types'
 import { CATEGORIAS } from '../types'
 import {
+  comExcecaoEm,
   montarEvento,
+  rascunhoDe,
   rascunhoVazio,
   sobreposicoesDe,
   validarRascunho,
@@ -40,12 +42,21 @@ interface FormularioEventoProps {
   /** Eventos já marcados no dia, para o aviso de sobreposição. */
   doDia: EventoBase[]
   aoSalvar: (evento: Evento) => Promise<void>
+  /** Quando presente, o formulário edita este evento em vez de criar um novo. */
+  evento?: Evento
+  aoExcluir?: (id: string) => Promise<void>
+  /** Chamado quando a edição termina — salva, exclui ou desiste. */
+  aoFechar?: () => void
 }
 
 /**
- * Criação de evento, pontual ou recorrente.
+ * Criação e edição de evento, pontual ou recorrente.
  *
- * Três decisões de usabilidade:
+ * É o mesmo formulário para os dois porque editar e criar são a mesma decisão
+ * — reconhecer em vez de lembrar (heurística 6): quem edita vê os campos
+ * preenchidos exatamente como salvou, não uma tela diferente.
+ *
+ * Decisões de usabilidade:
  *
  * - **Erro só aparece depois da primeira tentativa de salvar.** Reclamar de
  *   campo vazio enquanto a pessoa ainda está digitando é ruído; depois da
@@ -54,21 +65,40 @@ interface FormularioEventoProps {
  * - **Sobreposição é aviso, não bloqueio.** O motor já lê conflito como
  *   insight crítico, e o usuário pode mesmo ter dois compromissos cruzados.
  *   Impedir seria o app decidindo por ele.
+ * - **Excluir pergunta antes.** Ação destrutiva e irreversível pede confirmação
+ *   explícita (heurística 5), e a confirmação tem saída clara (heurística 3).
  * - **A confirmação vai em região `aria-live`** — quem não vê a tela precisa
  *   saber que o evento foi salvo (heurística 1).
+ *
+ * Trocar de evento editado não reseta o estado sozinho: quem renderiza passa
+ * `key={evento?.id ?? 'novo'}` e deixa o React refazer o componente.
  */
-export function FormularioEvento({ data, doDia, aoSalvar }: FormularioEventoProps) {
+export function FormularioEvento({
+  data,
+  doDia,
+  aoSalvar,
+  evento,
+  aoExcluir,
+  aoFechar,
+}: FormularioEventoProps) {
   const idBase = useId()
-  const [rascunho, setRascunho] = useState<RascunhoEvento>(() => rascunhoVazio(data))
+  const editando = evento !== undefined
+  const [rascunho, setRascunho] = useState<RascunhoEvento>(() =>
+    evento ? rascunhoDe(evento, data) : rascunhoVazio(data),
+  )
   const [tentouSalvar, setTentouSalvar] = useState(false)
   const [salvando, setSalvando] = useState(false)
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false)
   const [confirmacao, setConfirmacao] = useState('')
   const [novaExcecao, setNovaExcecao] = useState('')
 
   const erros = validarRascunho(rascunho)
   const errosVisiveis: ErrosDoRascunho = tentouSalvar ? erros : {}
-  const conflitos = sobreposicoesDe(rascunho, doDia)
+  // Ao editar, o próprio evento não conta como conflito consigo mesmo.
+  const conflitos = sobreposicoesDe(rascunho, doDia, evento?.id)
   const recorrente = rascunho.tipo === 'fixo'
+  /** Só faz sentido cancelar uma ocorrência de algo que já está salvo e repete. */
+  const podeCancelarNoDia = evento?.tipo === 'fixo' && !evento.excecoes.includes(data)
 
   function alterar<C extends keyof RascunhoEvento>(campo: C, valor: RascunhoEvento[C]) {
     setRascunho((atual) => ({ ...atual, [campo]: valor }))
@@ -91,34 +121,62 @@ export function FormularioEvento({ data, doDia, aoSalvar }: FormularioEventoProp
     setNovaExcecao('')
   }
 
-  async function enviar(evento: FormEvent) {
-    evento.preventDefault()
-    setTentouSalvar(true)
-    if (Object.keys(erros).length > 0) return
-
+  /** Envolve toda escrita: trava o botão e engole o erro, que o hook já mostra. */
+  async function executar(operacao: () => Promise<void>) {
     setSalvando(true)
     try {
-      await aoSalvar(montarEvento(rascunho, novoId()))
-      setConfirmacao(
-        recorrente
-          ? `${rascunho.nome.trim()} salvo para todas as semanas, até ${formatarDataCurta(rascunho.validoAte)}.`
-          : `${rascunho.nome.trim()} salvo para ${formatarDataCurta(rascunho.data)}.`,
-      )
-      // Limpa só o que muda de evento para evento: a data continua, porque
-      // quem adiciona um compromisso costuma adicionar o seguinte no mesmo dia.
-      setRascunho((atual) => ({ ...rascunhoVazio(data), tipo: atual.tipo }))
-      setTentouSalvar(false)
+      await operacao()
+      return true
     } catch {
       // O hook de eventos já expõe a mensagem de erro na tela.
+      return false
     } finally {
       setSalvando(false)
     }
   }
 
+  async function enviar(submissao: FormEvent) {
+    submissao.preventDefault()
+    setTentouSalvar(true)
+    if (Object.keys(erros).length > 0) return
+
+    // Editar reaproveita o id; criar gera um novo. É a única diferença entre
+    // os dois caminhos — o resto do formulário não sabe em qual modo está.
+    const salvo = montarEvento(rascunho, evento?.id ?? novoId())
+    const deuCerto = await executar(() => aoSalvar(salvo))
+    if (!deuCerto) return
+
+    if (editando) {
+      aoFechar?.()
+      return
+    }
+
+    setConfirmacao(
+      recorrente
+        ? `${salvo.nome} salvo para todas as semanas, até ${formatarDataCurta(rascunho.validoAte)}.`
+        : `${salvo.nome} salvo para ${formatarDataCurta(rascunho.data)}.`,
+    )
+    // Limpa só o que muda de evento para evento: a data continua, porque
+    // quem adiciona um compromisso costuma adicionar o seguinte no mesmo dia.
+    setRascunho((atual) => ({ ...rascunhoVazio(data), tipo: atual.tipo }))
+    setTentouSalvar(false)
+  }
+
+  async function excluir() {
+    if (!evento || !aoExcluir) return
+    if (await executar(() => aoExcluir(evento.id))) aoFechar?.()
+  }
+
+  /** Cancela uma ocorrência sem apagar a recorrência inteira. */
+  async function cancelarNoDia() {
+    if (evento?.tipo !== 'fixo') return
+    if (await executar(() => aoSalvar(comExcecaoEm(evento, data)))) aoFechar?.()
+  }
+
   return (
     <section className="formulario" aria-labelledby={`${idBase}-titulo`}>
       <h2 id={`${idBase}-titulo`} className="formulario-titulo">
-        Adicionar compromisso
+        {editando ? `Editar ${evento.nome}` : 'Adicionar compromisso'}
       </h2>
 
       <form className="formulario-campos" onSubmit={enviar} noValidate>
@@ -361,9 +419,75 @@ export function FormularioEvento({ data, doDia, aoSalvar }: FormularioEventoProp
           </p>
         )}
 
+        {/* Editar algo que se repete mexe em todas as semanas. Dizer isso antes
+            é mais honesto do que descobrir depois que a aula de ontem mudou. */}
+        {editando && evento.tipo === 'fixo' && (
+          <p className="formulario-aviso">
+            Este compromisso se repete toda semana. O que você mudar aqui vale para
+            todas as ocorrências.
+          </p>
+        )}
+
         <button type="submit" className="formulario-salvar" disabled={salvando}>
-          {salvando ? 'Salvando…' : 'Salvar compromisso'}
+          {salvando ? 'Salvando…' : editando ? 'Salvar alterações' : 'Salvar compromisso'}
         </button>
+
+        {editando && (
+          <div className="formulario-acoes">
+            {/* Saída clara (heurística 3): desistir é sempre um clique. */}
+            <button
+              type="button"
+              className="formulario-acao"
+              onClick={aoFechar}
+              disabled={salvando}
+            >
+              Descartar alterações
+            </button>
+
+            {podeCancelarNoDia && (
+              <button
+                type="button"
+                className="formulario-acao"
+                onClick={cancelarNoDia}
+                disabled={salvando}
+              >
+                Cancelar só em {formatarDataCurta(data)}
+              </button>
+            )}
+
+            {aoExcluir &&
+              (confirmandoExclusao ? (
+                <p className="formulario-confirmar-exclusao">
+                  <span>Excluir {evento.nome} de vez? Isso não tem como desfazer.</span>
+                  <button
+                    type="button"
+                    className="formulario-acao formulario-acao-destrutiva"
+                    onClick={excluir}
+                    disabled={salvando}
+                  >
+                    Sim, excluir
+                  </button>
+                  <button
+                    type="button"
+                    className="formulario-acao"
+                    onClick={() => setConfirmandoExclusao(false)}
+                    disabled={salvando}
+                  >
+                    Manter
+                  </button>
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  className="formulario-acao formulario-acao-destrutiva"
+                  onClick={() => setConfirmandoExclusao(true)}
+                  disabled={salvando}
+                >
+                  Excluir compromisso
+                </button>
+              ))}
+          </div>
+        )}
 
         <p className="formulario-confirmacao" role="status" aria-live="polite">
           {confirmacao}

@@ -20,11 +20,32 @@ const PREVISAO = PREVISAO_DE_DEMONSTRACAO
 
 function App() {
   const [aba, setAba] = useState<Aba>('dia')
+  const [editandoId, setEditandoId] = useState<string | null>(null)
   const [dispensados, setDispensados] = useState<string[]>([])
-  const { eventos, carregando, erro, criar } = useEventos()
+  const { eventos, carregando, erro, criar, atualizar, remover } = useEventos()
 
   const hoje = hojeISO()
   const doDia = eventosDoDia(eventos, hoje)
+
+  // A trilha entrega o id da ocorrência, que é o id do evento de origem. Se o
+  // evento sumiu (excluído em outra aba), `editando` volta a ser indefinido e
+  // o formulário volta ao modo de criação em vez de quebrar.
+  const editando = eventos.find((evento) => evento.id === editandoId)
+
+  function irPara(destino: Aba) {
+    setEditandoId(null)
+    setAba(destino)
+  }
+
+  function editar(id: string) {
+    setEditandoId(id)
+    setAba('adicionar')
+  }
+
+  function fecharEdicao() {
+    setEditandoId(null)
+    setAba('dia')
+  }
 
   const insights = gerarInsights(doDia, PREVISAO)
   const { comprometido, emAberto } = resumoDoDia(doDia)
@@ -66,12 +87,23 @@ function App() {
               aoDispensar={dispensar}
               aoRestaurar={restaurar}
             />
-            <TrilhaDoDia eventos={doDia} />
+            <TrilhaDoDia eventos={doDia} aoEditar={editar} />
           </>
         )}
 
         {!carregando && aba === 'adicionar' && (
-          <FormularioEvento data={hoje} doDia={doDia} aoSalvar={criar} />
+          // A `key` faz o React refazer o formulário ao trocar de evento
+          // editado — é o que garante que os campos recarreguem do evento novo
+          // em vez de manter o estado do anterior.
+          <FormularioEvento
+            key={editando?.id ?? 'novo'}
+            data={hoje}
+            doDia={doDia}
+            evento={editando}
+            aoSalvar={editando ? atualizar : criar}
+            aoExcluir={remover}
+            aoFechar={fecharEdicao}
+          />
         )}
 
         {!carregando && aba === 'alertas' && (
@@ -86,7 +118,7 @@ function App() {
         )}
       </main>
 
-      <NavegacaoInferior ativa={aba} aoSelecionar={setAba} />
+      <NavegacaoInferior ativa={aba} aoSelecionar={irPara} />
     </div>
   )
 }

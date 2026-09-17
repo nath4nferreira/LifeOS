@@ -12,6 +12,8 @@ const ALTURA_MAXIMA_VAO = 96
 interface TrilhaDoDiaProps {
   /** Já ordenados por horário de início — é o que `eventosDoDia` garante. */
   eventos: EventoBase[]
+  /** Recebe o id do evento tocado. Sem isto a trilha é só leitura. */
+  aoEditar?: (id: string) => void
 }
 
 /**
@@ -21,7 +23,7 @@ interface TrilhaDoDiaProps {
  * estreito — a pressão do dia fica legível antes da leitura. É onde o
  * produto gasta a ousadia visual que a seção 11 do briefing pede.
  */
-export function TrilhaDoDia({ eventos }: TrilhaDoDiaProps) {
+export function TrilhaDoDia({ eventos, aoEditar }: TrilhaDoDiaProps) {
   const itens: ReactNode[] = []
 
   eventos.forEach((evento, indice) => {
@@ -33,7 +35,7 @@ export function TrilhaDoDia({ eventos }: TrilhaDoDiaProps) {
         itens.push(<VaoTrilha key={`vao-${evento.id}`} seguinte={evento} vao={vao} />)
       }
     }
-    itens.push(<EventoTrilha key={evento.id} evento={evento} />)
+    itens.push(<EventoTrilha key={evento.id} evento={evento} aoEditar={aoEditar} />)
   })
 
   return (
@@ -46,18 +48,48 @@ export function TrilhaDoDia({ eventos }: TrilhaDoDiaProps) {
   )
 }
 
-function EventoTrilha({ evento }: { evento: EventoBase }) {
+function EventoTrilha({
+  evento,
+  aoEditar,
+}: {
+  evento: EventoBase
+  aoEditar?: (id: string) => void
+}) {
   const minutos = duracao(evento.inicio, evento.fim)
   const altura = Math.max(ALTURA_MINIMA_EVENTO, minutos * PX_POR_MINUTO)
   const estilo = { '--altura-trilha': `${altura}px` } as CSSProperties
 
-  return (
-    <li className="trilha-evento" style={estilo}>
+  const conteudo = (
+    <>
       <span className="trilha-evento-hora">{evento.inicio}</span>
       <span className="trilha-evento-corpo">
         <span className="trilha-evento-nome">{evento.nome}</span>
         <span className="trilha-evento-duracao">{formatarDuracao(minutos)}</span>
       </span>
+    </>
+  )
+
+  return (
+    <li className="trilha-evento" style={estilo}>
+      {/* O bloco inteiro é o alvo de toque, não um ícone de lápis de 16px: a
+          altura já vem da duração, então o alvo nunca fica abaixo dos 44px.
+          `<button>` de verdade porque precisa ser focável e acionável pelo
+          teclado — um `<li>` com `onClick` não é nem uma coisa nem outra. */}
+      {aoEditar ? (
+        <button
+          type="button"
+          className="trilha-evento-botao"
+          onClick={() => aoEditar(evento.id)}
+        >
+          {conteudo}
+          <span className="apenas-leitor-de-tela">
+            {' '}
+            — editar, das {evento.inicio} às {evento.fim}
+          </span>
+        </button>
+      ) : (
+        conteudo
+      )}
     </li>
   )
 }

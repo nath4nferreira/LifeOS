@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import type { EventoBase } from '../types'
+import type { Evento, EventoBase, EventoFixo } from '../types'
 import {
+  comExcecaoEm,
   minutosDeDeslocamento,
   montarEvento,
+  rascunhoDe,
   rascunhoVazio,
   sobreposicoesDe,
   validarRascunho,
@@ -138,6 +140,91 @@ describe('montarEvento', () => {
     original.excecoes.push('2026-11-02')
 
     expect(evento).toMatchObject({ diasDaSemana: [3], excecoes: ['2026-10-12'] })
+  })
+})
+
+describe('rascunhoDe', () => {
+  const pontual: Evento = {
+    tipo: 'pontual',
+    id: 'a',
+    nome: 'Dentista',
+    categoria: 'saude',
+    data: '2026-09-17',
+    inicio: '18:30',
+    fim: '19:15',
+    deslocamento: 15,
+  }
+
+  const fixo: Evento = {
+    tipo: 'fixo',
+    id: 'b',
+    nome: 'Faculdade',
+    categoria: 'estudos',
+    diasDaSemana: [1, 3, 5],
+    validoDe: '2026-08-01',
+    validoAte: '2026-12-15',
+    excecoes: ['2026-10-12'],
+    inicio: '19:30',
+    fim: '22:30',
+    deslocamento: 25,
+  }
+
+  it('reabre um evento pontual exatamente como foi salvo', () => {
+    expect(montarEvento(rascunhoDe(pontual, '2026-09-20'), pontual.id)).toEqual(pontual)
+  })
+
+  it('reabre um evento fixo exatamente como foi salvo', () => {
+    expect(montarEvento(rascunhoDe(fixo, '2026-09-17'), fixo.id)).toEqual(fixo)
+  })
+
+  it('deslocamento 0 volta como "0", não como vazio', () => {
+    // Se voltasse vazio, reabrir e salvar um evento sem caminho daria erro de
+    // validação num campo que o usuário nunca tocou.
+    expect(rascunhoDe({ ...pontual, deslocamento: 0 }, '2026-09-17').deslocamento).toBe('0')
+  })
+
+  it('dá uma data ao evento fixo, para o caso de virar pontual na edição', () => {
+    expect(rascunhoDe(fixo, '2026-09-17').data).toBe('2026-09-17')
+  })
+
+  it('não compartilha as listas com o evento salvo', () => {
+    const rascunhoDoFixo = rascunhoDe(fixo, '2026-09-17')
+    rascunhoDoFixo.diasDaSemana.push(6)
+    rascunhoDoFixo.excecoes.push('2026-11-02')
+
+    expect(fixo).toMatchObject({ diasDaSemana: [1, 3, 5], excecoes: ['2026-10-12'] })
+  })
+})
+
+describe('comExcecaoEm', () => {
+  const fixo: EventoFixo = {
+    tipo: 'fixo',
+    id: 'b',
+    nome: 'Faculdade',
+    categoria: 'estudos',
+    diasDaSemana: [1, 3, 5],
+    validoDe: '2026-08-01',
+    validoAte: '2026-12-15',
+    excecoes: ['2026-10-12'],
+    inicio: '19:30',
+    fim: '22:30',
+    deslocamento: 25,
+  }
+
+  it('adiciona a data e mantém a lista ordenada', () => {
+    expect(comExcecaoEm(fixo, '2026-09-17').excecoes).toEqual(['2026-09-17', '2026-10-12'])
+  })
+
+  it('cancelar duas vezes o mesmo dia não duplica', () => {
+    expect(comExcecaoEm(comExcecaoEm(fixo, '2026-09-17'), '2026-09-17').excecoes).toEqual([
+      '2026-09-17',
+      '2026-10-12',
+    ])
+  })
+
+  it('não altera o evento original', () => {
+    comExcecaoEm(fixo, '2026-09-17')
+    expect(fixo.excecoes).toEqual(['2026-10-12'])
   })
 })
 

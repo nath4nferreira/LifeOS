@@ -113,6 +113,55 @@ input[type='number'].campo-controle {
   opacity: 0.7;
 }
 
+/* Ações de edição: empilhadas e visivelmente secundárias ao botão de salvar,
+   porque nenhuma delas é o caminho principal de quem abriu a tela. */
+.formulario-acoes {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--linha);
+}
+
+.formulario-acao {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+/* Vermelho na borda e no texto, nunca só no fundo: destrutivo precisa ser
+   reconhecível sem depender de cor, e o texto já diz "Excluir". */
+.formulario-acao-destrutiva {
+  border-color: var(--critico);
+  color: var(--critico);
+}
+
+.formulario-acao:disabled {
+  color: var(--apagado);
+  border-color: var(--linha);
+  cursor: progress;
+}
+
+.formulario-confirmar-exclusao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 2px solid var(--critico);
+  border-radius: var(--raio);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--tinta);
+}
+
 .formulario-confirmacao:not(:empty) {
   margin: 0;
   padding: 10px 12px;

@@ -8,7 +8,7 @@
  * RESTRIÇÃO DE PORTABILIDADE: função pura, sem React, DOM ou I/O.
  */
 
-import type { Categoria, Evento, EventoBase } from '../types'
+import type { Categoria, Evento, EventoBase, EventoFixo } from '../types'
 import { CATEGORIAS } from '../types'
 import {
   dataValida,
@@ -78,6 +78,53 @@ export function rascunhoVazio(data: string): RascunhoEvento {
     validoAte: somarDias(data, VALIDADE_PADRAO_EM_DIAS),
     excecoes: [],
   }
+}
+
+/**
+ * O caminho de volta: um evento salvo virando rascunho editável.
+ *
+ * Existe porque editar é reabrir o formulário no estado exato em que o evento
+ * foi salvo — nada de "recriar por cima". O par com `montarEvento` é uma ida e
+ * volta sem perda, e é isso que o teste garante.
+ *
+ * `dataVisivel` só é usada quando o evento é fixo: um evento que se repete não
+ * tem data própria, mas o rascunho precisa de uma para o caso de o usuário
+ * trocar "toda semana" por "uma vez" no meio da edição.
+ */
+export function rascunhoDe(evento: Evento, dataVisivel: string): RascunhoEvento {
+  const base = rascunhoVazio(evento.tipo === 'pontual' ? evento.data : dataVisivel)
+
+  const comum: RascunhoEvento = {
+    ...base,
+    tipo: evento.tipo,
+    nome: evento.nome,
+    categoria: evento.categoria,
+    inicio: evento.inicio,
+    fim: evento.fim,
+    deslocamento: String(evento.deslocamento),
+  }
+
+  if (evento.tipo === 'pontual') return comum
+
+  return {
+    ...comum,
+    diasDaSemana: [...evento.diasDaSemana],
+    validoDe: evento.validoDe,
+    validoAte: evento.validoAte,
+    excecoes: [...evento.excecoes],
+  }
+}
+
+/**
+ * Cancelar uma única ocorrência de um evento que se repete.
+ *
+ * É o buraco clássico do modelo de recorrência — "hoje não teve aula" — e aqui
+ * ele se resolve com uma exceção, sem inventar um sistema de instâncias
+ * editáveis. Chamar duas vezes para a mesma data não duplica nada.
+ */
+export function comExcecaoEm(evento: EventoFixo, data: string): EventoFixo {
+  if (evento.excecoes.includes(data)) return evento
+  return { ...evento, excecoes: [...evento.excecoes, data].sort() }
 }
 
 /**
