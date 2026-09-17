@@ -1,9 +1,9 @@
 import type { JSX } from 'react'
-import './NavegacaoInferior.css'
+import './NavegacaoPrincipal.css'
 
 export type Aba = 'dia' | 'adicionar' | 'alertas'
 
-interface NavegacaoInferiorProps {
+interface NavegacaoPrincipalProps {
   ativa: Aba
   aoSelecionar: (aba: Aba) => void
 }
@@ -15,20 +15,22 @@ const ITENS: { aba: Aba; rotulo: string }[] = [
 ]
 
 /**
- * Navegação principal do app, sempre visível no rodapé no mobile (some no
- * desktop a partir da etapa 17, quando a navegação lateral assume o lugar).
+ * Navegação principal do app: barra fixa no rodapé no mobile, coluna à
+ * esquerda no desktop. É o mesmo `<nav>` nos dois casos, só com outro CSS —
+ * duplicar o elemento daria dois landmarks de navegação na árvore de
+ * acessibilidade, e o leitor de tela anunciaria um menu que não existe.
  *
  * `aria-current="page"` marca a aba ativa para leitor de tela; a cor sozinha
  * nunca é a única pista.
  */
-export function NavegacaoInferior({ ativa, aoSelecionar }: NavegacaoInferiorProps) {
+export function NavegacaoPrincipal({ ativa, aoSelecionar }: NavegacaoPrincipalProps) {
   return (
-    <nav className="navegacao-inferior" aria-label="Navegação principal">
+    <nav className="navegacao" aria-label="Navegação principal">
       {ITENS.map((item) => (
         <button
           key={item.aba}
           type="button"
-          className="navegacao-inferior-item"
+          className="navegacao-item"
           aria-current={ativa === item.aba ? 'page' : undefined}
           onClick={() => aoSelecionar(item.aba)}
         >

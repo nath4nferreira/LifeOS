@@ -8,7 +8,9 @@
 
 import { describe, expect, it } from 'vitest'
 import type { EventoBase, HoraPrevisao, Previsao } from '../types'
+import type { Categoria } from '../types'
 import {
+  cargaPorArea,
   gerarInsights,
   insightsDeTransicao,
   resumoDoDia,
@@ -20,12 +22,13 @@ function evento(props: {
   inicio: string
   fim: string
   deslocamento?: number
+  categoria?: Categoria
 }): EventoBase {
   const nome = props.nome ?? 'Compromisso'
   return {
     id: `${nome}-${props.inicio}`,
     nome,
-    categoria: 'pessoal',
+    categoria: props.categoria ?? 'pessoal',
     inicio: props.inicio,
     fim: props.fim,
     deslocamento: props.deslocamento ?? 0,
@@ -468,6 +471,40 @@ describe('resumoDoDia', () => {
 
   it('devolve zero para um dia vazio', () => {
     expect(resumoDoDia([])).toEqual({ comprometido: 0, emAberto: 0 })
+  })
+})
+
+describe('cargaPorArea', () => {
+  const DIA = [
+    evento({ nome: 'Reunião', inicio: '09:00', fim: '12:00', categoria: 'trabalho' }),
+    evento({ nome: 'Aula', inicio: '14:00', fim: '15:00', categoria: 'estudos' }),
+    evento({ nome: 'Código', inicio: '15:00', fim: '16:00', categoria: 'trabalho' }),
+  ]
+
+  it('soma os minutos de cada categoria', () => {
+    expect(cargaPorArea(DIA).map((c) => [c.categoria, c.minutos])).toEqual([
+      ['trabalho', 240],
+      ['estudos', 60],
+    ])
+  })
+
+  it('a fração é sobre o tempo comprometido, e as frações somam 1', () => {
+    const carga = cargaPorArea(DIA)
+    expect(carga[0].fracao).toBe(0.8)
+    expect(carga.reduce((soma, c) => soma + c.fracao, 0)).toBe(1)
+  })
+
+  it('ordena da área mais pesada para a mais leve', () => {
+    const invertido = cargaPorArea([DIA[1], DIA[0]])
+    expect(invertido.map((c) => c.categoria)).toEqual(['trabalho', 'estudos'])
+  })
+
+  it('omite categorias sem evento em vez de listar zeros', () => {
+    expect(cargaPorArea(DIA)).toHaveLength(2)
+  })
+
+  it('devolve lista vazia para um dia vazio, sem dividir por zero', () => {
+    expect(cargaPorArea([])).toEqual([])
   })
 })
 

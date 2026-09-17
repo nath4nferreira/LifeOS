@@ -8,6 +8,7 @@ import {
 import { eventosDoDia } from './core/seletor'
 import { useAgora } from './hooks/useAgora'
 import { useEventos } from './hooks/useEventos'
+import { useMedia } from './hooks/useMedia'
 import { usePrevisao } from './hooks/usePrevisao'
 import { PREVISAO_DE_DEMONSTRACAO } from './services/demonstracao'
 import { hojeISO } from './services/relogio'
@@ -17,8 +18,9 @@ import { SeletorDeData } from './components/SeletorDeData'
 import { Veredito } from './components/Veredito'
 import { PainelDeInsights } from './components/PainelDeInsights'
 import { TrilhaDoDia } from './components/TrilhaDoDia'
+import { PainelDeContexto } from './components/PainelDeContexto'
 import { FormularioEvento } from './components/FormularioEvento'
-import { NavegacaoInferior, type Aba } from './components/NavegacaoInferior'
+import { NavegacaoPrincipal, type Aba } from './components/NavegacaoPrincipal'
 import './App.css'
 
 function App() {
@@ -32,6 +34,11 @@ function App() {
   // recalculado no mesmo tique, então às 00:00 o dia que estava na tela passa
   // a ser "Ontem" sozinho, sem precisar recarregar a página.
   const agora = useAgora()
+
+  // A partir de 1025px o layout vira três colunas e ganha o painel de
+  // contexto. É montagem condicional, não `display: none`: abaixo disso o
+  // painel não existe na página.
+  const desktop = useMedia('(min-width: 1025px)')
 
   // `hoje` é lido uma vez por render e nunca vira estado: é o dia de verdade.
   // `data` é o dia que a tela mostra, e os dois são coisas diferentes.
@@ -195,7 +202,16 @@ function App() {
         )}
       </main>
 
-      <NavegacaoInferior ativa={aba} aoSelecionar={irPara} />
+      {desktop && (
+        <PainelDeContexto
+          previsao={previsao}
+          estado={estadoDoClima}
+          eventos={doDia}
+          agora={data === hoje ? agora : null}
+        />
+      )}
+
+      <NavegacaoPrincipal ativa={aba} aoSelecionar={irPara} />
     </div>
   )
 }

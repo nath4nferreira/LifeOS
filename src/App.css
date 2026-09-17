@@ -31,3 +31,55 @@
   color: var(--critico);
   font-size: 0.875rem;
 }
+
+/* Tablet: a mesma coluna única, só mais larga. Não há conteúdo novo a
+   mostrar aqui — o que muda de verdade é o formulário, que vira três
+   colunas no seu próprio CSS. */
+@media (min-width: 481px) {
+  .app-shell {
+    max-width: 640px;
+    border-left: 1px solid var(--linha);
+    border-right: 1px solid var(--linha);
+  }
+}
+
+/* Desktop: o conteúdo se reorganiza em vez de esticar.
+   A navegação sai do rodapé e vira coluna, o painel de contexto aparece à
+   direita, e a faixa de status, o seletor e o conteúdo ficam empilhados no
+   meio. As colunas laterais atravessam as três linhas.
+
+   O grid nomeia classes de componentes (`.faixa-status`, `.navegacao`…)
+   porque quem decide onde cada peça fica no layout é o App, não a peça.
+   Nenhum componente sabe em que coluna está. */
+@media (min-width: 1025px) {
+  .app-shell {
+    display: grid;
+    grid-template-columns: 208px minmax(0, 1fr) 316px;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      'navegacao faixa    contexto'
+      'navegacao seletor  contexto'
+      'navegacao conteudo contexto';
+    max-width: 1280px;
+  }
+
+  .app-shell > .faixa-status {
+    grid-area: faixa;
+  }
+
+  .app-shell > .seletor-data {
+    grid-area: seletor;
+  }
+
+  .app-shell > .app-conteudo {
+    grid-area: conteudo;
+  }
+
+  .app-shell > .contexto {
+    grid-area: contexto;
+  }
+
+  .app-shell > .navegacao {
+    grid-area: navegacao;
+  }
+}

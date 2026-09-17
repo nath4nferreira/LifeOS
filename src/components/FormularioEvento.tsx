@@ -1,6 +1,6 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
-import type { Categoria, Evento, EventoBase } from '../types'
-import { CATEGORIAS } from '../types'
+import type { Evento, EventoBase } from '../types'
+import { CATEGORIAS, ROTULO_CATEGORIA } from '../types'
 import {
   comExcecaoEm,
   montarEvento,
@@ -14,16 +14,6 @@ import {
 import { novoId } from '../services/identidade'
 import { dataValida, formatarDataCurta } from '../utils/tempo'
 import './FormularioEvento.css'
-
-/** Os nomes que o usuário lê. A chave é do sistema, o rótulo é dele. */
-const ROTULO_CATEGORIA: Record<Categoria, string> = {
-  trabalho: 'Trabalho',
-  estudos: 'Estudos',
-  saude: 'Saúde',
-  pessoal: 'Pessoal',
-  casa: 'Casa',
-  financas: 'Finanças',
-}
 
 /** Índice 0 = domingo, igual a `EventoFixo.diasDaSemana`. */
 const DIAS = [

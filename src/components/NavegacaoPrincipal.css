@@ -1,0 +1,63 @@
+.navegacao {
+  display: flex;
+  border-top: 1px solid var(--linha);
+  background: var(--superficie);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.navegacao-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 6px 4px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--apagado);
+  cursor: pointer;
+}
+
+.navegacao-item[aria-current='page'] {
+  color: var(--tinta);
+}
+
+.navegacao-item:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: -2px;
+}
+
+/* Desktop: a mesma navegação vira coluna. Com 208px sobra largura para ícone
+   e rótulo ficarem lado a lado, então o item deixa de ser bloco empilhado e
+   vira linha — é a leitura natural de um menu vertical. */
+@media (min-width: 1025px) {
+  .navegacao {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+    padding: 20px 12px;
+    border-top: none;
+    border-right: 1px solid var(--linha);
+  }
+
+  .navegacao-item {
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: var(--raio);
+    font-size: 0.875rem;
+    text-align: left;
+  }
+
+  .navegacao-item[aria-current='page'] {
+    background: var(--superficie-2);
+    font-weight: 600;
+  }
+}

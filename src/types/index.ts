@@ -25,6 +25,22 @@ export const CATEGORIAS = [
 export type Categoria = (typeof CATEGORIAS)[number]
 
 /**
+ * Os nomes que o usuário lê. A chave é do sistema, o rótulo é dele.
+ *
+ * Mora aqui, colado em `CATEGORIAS`, porque mais de uma tela precisa dele — o
+ * seletor do formulário e o painel de contexto — e porque `Record<Categoria,
+ * string>` faz o compilador cobrar o rótulo de toda categoria nova.
+ */
+export const ROTULO_CATEGORIA: Record<Categoria, string> = {
+  trabalho: 'Trabalho',
+  estudos: 'Estudos',
+  saude: 'Saúde',
+  pessoal: 'Pessoal',
+  casa: 'Casa',
+  financas: 'Finanças',
+}
+
+/**
  * O que todo evento tem, independente de acontecer uma única vez ou se
  * repetir. É também o formato que o seletor entrega para o motor de insights:
  * o motor nunca vê recorrência.

@@ -14,6 +14,7 @@
  */
 
 import type {
+  Categoria,
   EventoBase,
   HoraPrevisao,
   Insight,
@@ -186,6 +187,39 @@ export function resumoDoDia(eventos: EventoBase[]): {
   }
 
   return { comprometido, emAberto }
+}
+
+/** Uma categoria e quanto do dia ela ocupa. */
+export interface CargaDeArea {
+  categoria: Categoria
+  minutos: number
+  /** Fração do tempo comprometido, de 0 a 1. Já é a largura da barra. */
+  fracao: number
+}
+
+/**
+ * Para onde o dia foi, por área.
+ *
+ * Responde a pergunta que o veredito não responde: "11h comprometidas" não
+ * diz se foram 11h de trabalho ou 11h divididas entre cinco coisas. É a
+ * informação que só cabe no desktop, onde sobra coluna.
+ *
+ * Sai ordenado do maior para o menor, e categorias sem evento nenhum não
+ * aparecem — uma lista de seis itens com quatro zeros seria ruído.
+ */
+export function cargaPorArea(eventos: EventoBase[]): CargaDeArea[] {
+  const total = eventos.reduce((soma, e) => soma + duracao(e.inicio, e.fim), 0)
+  if (total <= 0) return []
+
+  const minutosPor = new Map<Categoria, number>()
+  for (const evento of eventos) {
+    const atual = minutosPor.get(evento.categoria) ?? 0
+    minutosPor.set(evento.categoria, atual + duracao(evento.inicio, evento.fim))
+  }
+
+  return [...minutosPor.entries()]
+    .map(([categoria, minutos]) => ({ categoria, minutos, fracao: minutos / total }))
+    .sort((a, b) => b.minutos - a.minutos)
 }
 
 // ---------------------------------------------------------------------------
