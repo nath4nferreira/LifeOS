@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import type { Insight } from '../types'
 import { CartaoInsight } from './CartaoInsight'
 import './PainelDeInsights.css'
@@ -37,6 +37,9 @@ export function PainelDeInsights({
   titulo = 'O que merece atenção',
   mostrarTodos = false,
 }: PainelDeInsightsProps) {
+  // A tela do dia tem dois painéis (o do dia e o da virada), e `id` repetido
+  // faz `aria-labelledby` apontar para o título errado.
+  const idTitulo = `${useId()}-titulo`
   const [expandido, setExpandido] = useState(false)
 
   const ativos = insights.filter((i) => !dispensados.includes(i.id))
@@ -47,8 +50,8 @@ export function PainelDeInsights({
   const quantosDispensados = insights.filter((i) => dispensados.includes(i.id)).length
 
   return (
-    <section className="painel" aria-labelledby="painel-titulo">
-      <h2 id="painel-titulo" className="painel-titulo">
+    <section className="painel" aria-labelledby={idTitulo}>
+      <h2 id={idTitulo} className="painel-titulo">
         {titulo}
       </h2>
 

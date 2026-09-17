@@ -1,10 +1,15 @@
 import { useState } from 'react'
-import { gerarInsights, resumoDoDia, vereditoDoDia } from './core/insights'
+import {
+  gerarInsights,
+  insightsDeTransicao,
+  resumoDoDia,
+  vereditoDoDia,
+} from './core/insights'
 import { eventosDoDia } from './core/seletor'
 import { useEventos } from './hooks/useEventos'
 import { PREVISAO_DE_DEMONSTRACAO } from './services/demonstracao'
 import { hojeISO } from './services/relogio'
-import { somarDias } from './utils/tempo'
+import { rotuloDoDia, somarDias } from './utils/tempo'
 import { FaixaDeStatus } from './components/FaixaDeStatus'
 import { SeletorDeData } from './components/SeletorDeData'
 import { Veredito } from './components/Veredito'
@@ -31,6 +36,12 @@ function App() {
   const hoje = hojeISO()
   const [data, setData] = useState(hoje)
   const doDia = eventosDoDia(eventos, data)
+
+  // A regra 7 é a única que cruza dois dias, então é a única que precisa do
+  // dia seguinte. O motor a mantém fora de `gerarInsights` justamente porque
+  // aquele enxerga um dia só.
+  const seguinte = somarDias(data, 1)
+  const transicao = insightsDeTransicao(doDia, eventosDoDia(eventos, seguinte))
 
   // A previsão que temos é a de hoje. Em qualquer outro dia o contexto de
   // clima é honestamente ausente, e as regras 3 e 4 simplesmente não opinam —
@@ -121,6 +132,21 @@ function App() {
               aoRestaurar={restaurar}
             />
             <TrilhaDoDia eventos={doDia} aoEditar={editar} />
+
+            {/* A virada do dia é um painel à parte, e não mais um cartão no
+                painel do dia. O motivo é honestidade: esse insight não fala do
+                dia que está na tela, fala do que acontece depois que ele
+                acaba — e por isso também não entra na conta do veredito. */}
+            {transicao.length > 0 && (
+              <PainelDeInsights
+                insights={transicao}
+                dispensados={dispensados}
+                aoDispensar={dispensar}
+                aoRestaurar={restaurar}
+                titulo={`Entre ${rotuloDoDia(data, hoje).toLowerCase()} e ${rotuloDoDia(seguinte, hoje).toLowerCase()}`}
+                mostrarTodos
+              />
+            )}
           </>
         )}
 
@@ -140,8 +166,11 @@ function App() {
         )}
 
         {!carregando && aba === 'alertas' && (
+          // Aqui a virada entra junto: esta aba é o inventário completo, e
+          // separá-la de novo só esconderia informação atrás de uma rolagem.
+          // Vai por último de propósito — é o que vem depois do dia acabar.
           <PainelDeInsights
-            insights={insights}
+            insights={[...insights, ...transicao]}
             dispensados={dispensados}
             aoDispensar={dispensar}
             aoRestaurar={restaurar}
