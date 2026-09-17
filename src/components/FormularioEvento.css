@@ -1,0 +1,134 @@
+.formulario {
+  padding: 24px 20px;
+}
+
+.formulario-titulo {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--tinta);
+}
+
+.formulario-campos {
+  display: grid;
+  gap: 16px;
+}
+
+/* Início e término andam juntos: são a mesma decisão vista de dois lados. */
+.formulario-par {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.campo {
+  display: grid;
+  gap: 6px;
+}
+
+.campo-rotulo {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+/* Borda informativa, não decorativa: campo de formulário precisa dos 3:1 da
+   WCAG 1.4.11, por isso --linha-forte e não --linha. */
+.campo-controle {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--superficie);
+  font-family: var(--sans);
+  font-size: 1rem;
+  color: var(--tinta);
+}
+
+/* Horário, data e minutos são números de tabela de horário. */
+input[type='time'].campo-controle,
+input[type='date'].campo-controle,
+input[type='number'].campo-controle {
+  font-family: var(--mono);
+}
+
+.campo-controle[aria-invalid] {
+  border-color: var(--critico);
+  border-width: 2px;
+}
+
+.campo-dica {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--apagado);
+}
+
+/* O erro não é só vermelho: o "↳" e o texto carregam a informação sozinhos. */
+.campo-erro {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--critico);
+}
+
+.campo-erro::before {
+  content: '↳ ';
+}
+
+.formulario-aviso {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--atencao);
+  border-radius: var(--raio);
+  background: var(--atencao-fundo);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--tinta);
+}
+
+.formulario-salvar {
+  min-height: 48px;
+  border: 1px solid var(--tinta);
+  border-radius: var(--raio);
+  background: var(--tinta);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--superficie);
+  cursor: pointer;
+}
+
+.formulario-salvar:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.formulario-confirmacao:not(:empty) {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--raio);
+  background: var(--bom-fundo);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bom);
+}
+
+/* Tablet: os campos curtos deixam de ocupar a linha inteira (seção 11). */
+@media (min-width: 481px) {
+  .formulario-campos {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+  }
+
+  .campo:has(> input[type='text']),
+  .formulario-aviso,
+  .formulario-confirmacao,
+  .formulario-salvar {
+    grid-column: 1 / -1;
+  }
+
+  .formulario-par {
+    grid-column: span 2;
+  }
+}

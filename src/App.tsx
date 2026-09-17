@@ -8,6 +8,7 @@ import { FaixaDeStatus } from './components/FaixaDeStatus'
 import { Veredito } from './components/Veredito'
 import { PainelDeInsights } from './components/PainelDeInsights'
 import { TrilhaDoDia } from './components/TrilhaDoDia'
+import { FormularioEvento } from './components/FormularioEvento'
 import { NavegacaoInferior, type Aba } from './components/NavegacaoInferior'
 import './App.css'
 
@@ -20,7 +21,7 @@ const PREVISAO = PREVISAO_DE_DEMONSTRACAO
 function App() {
   const [aba, setAba] = useState<Aba>('dia')
   const [dispensados, setDispensados] = useState<string[]>([])
-  const { eventos, carregando, erro } = useEventos()
+  const { eventos, carregando, erro, criar } = useEventos()
 
   const hoje = hojeISO()
   const doDia = eventosDoDia(eventos, hoje)
@@ -69,7 +70,9 @@ function App() {
           </>
         )}
 
-        {!carregando && aba === 'adicionar' && <p className="app-estado">Em construção.</p>}
+        {!carregando && aba === 'adicionar' && (
+          <FormularioEvento data={hoje} doDia={doDia} aoSalvar={criar} />
+        )}
 
         {!carregando && aba === 'alertas' && (
           <PainelDeInsights

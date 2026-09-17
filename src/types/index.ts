@@ -6,7 +6,23 @@
  * runtime — o que preserva a restrição de portabilidade de `core/` e `utils/`.
  */
 
-export type Categoria = 'trabalho' | 'estudos' | 'saude' | 'pessoal' | 'casa' | 'financas'
+/**
+ * As categorias como lista, com o tipo derivado dela.
+ *
+ * A lista precisa existir em runtime — é o que popula o seletor do formulário
+ * e o que a validação usa para recusar um valor inventado. Derivar o tipo da
+ * lista impede que as duas coisas saiam de sincronia.
+ */
+export const CATEGORIAS = [
+  'trabalho',
+  'estudos',
+  'saude',
+  'pessoal',
+  'casa',
+  'financas',
+] as const
+
+export type Categoria = (typeof CATEGORIAS)[number]
 
 /**
  * O que todo evento tem, independente de acontecer uma única vez ou se
