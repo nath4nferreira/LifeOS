@@ -1,0 +1,74 @@
+.painel {
+  padding: 4px 20px 20px;
+}
+
+.painel-titulo {
+  margin: 0 0 12px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--tinta);
+}
+
+.painel-lista {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.painel-vazio {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--apagado);
+}
+
+.painel-mais {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 10px;
+  border: 1px dashed var(--linha-forte);
+  border-radius: var(--raio);
+  background: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--apagado);
+  cursor: pointer;
+}
+
+.painel-mais:hover {
+  color: var(--tinta);
+}
+
+/* A região viva existe mesmo vazia: um `aria-live` só é anunciado se já
+   estava no DOM quando o conteúdo mudou. */
+.painel-desfazer:not(:empty) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--linha);
+}
+
+.painel-desfazer-texto {
+  font-size: 0.8125rem;
+  color: var(--apagado);
+}
+
+.painel-desfazer-acao {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: none;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.painel-desfazer-acao:hover {
+  background: var(--superficie-2);
+}

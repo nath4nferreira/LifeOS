@@ -1,0 +1,132 @@
+/* A cor do nível entra uma vez, em variáveis locais, e o resto do cartão só a
+   consome. Trocar de nível é trocar dois tokens, não reescrever regras. */
+.cartao {
+  --cartao-cor: var(--info);
+  --cartao-fundo: var(--info-fundo);
+
+  padding: 14px 16px 16px;
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--cartao-cor);
+  border-radius: var(--raio);
+  background: var(--superficie);
+}
+
+.cartao[data-nivel='critico'] {
+  --cartao-cor: var(--critico);
+  --cartao-fundo: var(--critico-fundo);
+}
+
+.cartao[data-nivel='atencao'] {
+  --cartao-cor: var(--atencao);
+  --cartao-fundo: var(--atencao-fundo);
+}
+
+.cartao[data-nivel='bom'] {
+  --cartao-cor: var(--bom);
+  --cartao-fundo: var(--bom-fundo);
+}
+
+/* Etiqueta textual: a redundância da cor, para quem não a enxerga. */
+.cartao-etiqueta {
+  margin: 0 0 6px;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cartao-cor);
+}
+
+.cartao-titulo {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--tinta);
+}
+
+.cartao-corpo {
+  margin: 8px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--apagado);
+}
+
+/* Itens da Regra 3 — o que levar ao sair de casa. */
+.cartao-itens {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--linha);
+}
+
+.cartao-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--linha);
+  font-size: 0.875rem;
+}
+
+.cartao-item-nome {
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.cartao-item-motivo {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--apagado);
+}
+
+.cartao-sugestao {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--raio);
+  background: var(--cartao-fundo);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--tinta);
+}
+
+/* Os números que geraram o insight. Mono porque são dados de tabela de
+   horário, e sempre visíveis porque auditabilidade escondida não audita nada. */
+.cartao-base {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.cartao-base-item {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--superficie-2);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  color: var(--apagado);
+}
+
+/* Recusar é tão visível quanto aceitar: alvo de 44px, borda informativa. */
+.cartao-acao {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 0 14px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.cartao-acao:hover {
+  background: var(--superficie-2);
+}
