@@ -1,0 +1,110 @@
+/**
+ * Tokens do LifeOS.
+ *
+ * O tema do produto é MARGEM: 5 minutos de sobra, 30 minutos entre coisas,
+ * uma janela de 1h30. Esse é o vocabulário de painel de embarque e tabela de
+ * horário — cinza-azulado frio, linhas de 1px em vez de sombra, raio pequeno.
+ *
+ * Duas regras valem para todo o CSS do projeto:
+ *
+ * 1. Cor só aparece quando um dado a justifica (nível do insight, categoria
+ *    do evento). Nunca como decoração.
+ * 2. IBM Plex Mono só em relógios e números. É vocabulário de tabela de
+ *    horário, não enfeite. Texto é Archivo.
+ */
+
+:root {
+  /* Superfícies e tinta */
+  --fundo: #eef0f4;
+  --superficie: #ffffff;
+  --superficie-2: #e6e9ef;
+  --tinta: #14181f;
+  /* #626b7a do briefing dava 4.42:1 sobre --superficie-2 e reprovava no
+     mínimo de 4.5:1 da WCAG. Escurecido o suficiente para passar nas três
+     superfícies (4.92:1 no pior caso) sem mudar a intenção do cinza frio. */
+  --apagado: #5b6472;
+
+  /* Duas espessuras de linha, e a diferença é semântica:
+     --linha é separador decorativo (divisória entre itens, contorno de
+     cartão). Fica em 1.25:1 de propósito — é o traço fino que o design pede,
+     e a WCAG não exige contraste de elemento decorativo.
+     --linha-forte é para borda que CARREGA INFORMAÇÃO: campo de formulário,
+     botão, anel de foco. Passa o mínimo de 3:1 da WCAG 1.4.11. */
+  --linha: #d3d8e0;
+  --linha-forte: #767f8e;
+
+  /* Níveis de insight. Cada par é usado junto: texto sobre o fundo claro. */
+  --critico: #a4232b;
+  --critico-fundo: #fbeaeb;
+  --atencao: #8a4d00;
+  --atencao-fundo: #fbf0e2;
+  --info: #2a5f9e;
+  --info-fundo: #e8eff8;
+  --bom: #1a6b50;
+  --bom-fundo: #e5f2ed;
+
+  --sans: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --raio: 6px;
+
+  /* Faz o navegador desenhar barra de rolagem e controles nativos no tema
+     certo. Sem isto, um select ou um input aparece claro no tema escuro. */
+  color-scheme: light;
+}
+
+/**
+ * Tema escuro.
+ *
+ * A troca é por atributo `data-theme` no elemento raiz, e não só por media
+ * query: o usuário precisa poder escolher manualmente nos ajustes. A media
+ * query abaixo define apenas o VALOR INICIAL, para quem nunca escolheu.
+ */
+[data-theme='escuro'] {
+  --fundo: #10141a;
+  --superficie: #171c24;
+  --superficie-2: #1f252f;
+  --tinta: #e8ecf2;
+  --apagado: #8b95a5;
+  --linha: #283040;
+  --linha-forte: #6b7893;
+
+  --critico: #ff8a8a;
+  --critico-fundo: #2a1719;
+  --atencao: #e5a54d;
+  --atencao-fundo: #291f12;
+  --info: #7fb3e8;
+  --info-fundo: #141f2c;
+  --bom: #6ecfa8;
+  --bom-fundo: #12241d;
+
+  color-scheme: dark;
+}
+
+/**
+ * Sistema no escuro e usuário sem escolha registrada.
+ *
+ * A paleta se repete aqui de propósito: o seletor precisa ser um `:root` que
+ * ignora quem já escolheu `claro`, e CSS não permite reaproveitar um bloco de
+ * declarações dentro de uma media query. Ao mexer em cor, mexa nos dois.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='claro']) {
+    --fundo: #10141a;
+    --superficie: #171c24;
+    --superficie-2: #1f252f;
+    --tinta: #e8ecf2;
+    --apagado: #8b95a5;
+    --linha: #283040;
+
+    --critico: #ff8a8a;
+    --critico-fundo: #2a1719;
+    --atencao: #e5a54d;
+    --atencao-fundo: #291f12;
+    --info: #7fb3e8;
+    --info-fundo: #141f2c;
+    --bom: #6ecfa8;
+    --bom-fundo: #12241d;
+
+    color-scheme: dark;
+  }
+}
