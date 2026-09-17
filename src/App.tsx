@@ -6,6 +6,7 @@ import {
   vereditoDoDia,
 } from './core/insights'
 import { eventosDoDia } from './core/seletor'
+import { useAgora } from './hooks/useAgora'
 import { useEventos } from './hooks/useEventos'
 import { usePrevisao } from './hooks/usePrevisao'
 import { PREVISAO_DE_DEMONSTRACAO } from './services/demonstracao'
@@ -25,6 +26,12 @@ function App() {
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [dispensados, setDispensados] = useState<string[]>([])
   const { eventos, carregando, erro, criar, atualizar, remover } = useEventos()
+
+  // `useAgora` faz o app renderizar a cada virada de minuto. Isso move o
+  // marcador da trilha e, de quebra, resolve a virada da meia-noite: `hoje` é
+  // recalculado no mesmo tique, então às 00:00 o dia que estava na tela passa
+  // a ser "Ontem" sozinho, sem precisar recarregar a página.
+  const agora = useAgora()
 
   // `hoje` é lido uma vez por render e nunca vira estado: é o dia de verdade.
   // `data` é o dia que a tela mostra, e os dois são coisas diferentes.
@@ -135,7 +142,11 @@ function App() {
               aoDispensar={dispensar}
               aoRestaurar={restaurar}
             />
-            <TrilhaDoDia eventos={doDia} aoEditar={editar} />
+            <TrilhaDoDia
+              eventos={doDia}
+              aoEditar={editar}
+              agora={data === hoje ? agora : null}
+            />
 
             {/* A virada do dia é um painel à parte, e não mais um cartão no
                 painel do dia. O motivo é honestidade: esse insight não fala do

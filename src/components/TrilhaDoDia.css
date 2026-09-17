@@ -42,6 +42,73 @@
   color: var(--apagado);
 }
 
+/* O evento em curso: borda cheia em vez de cinza, e o rótulo "agora" ao lado
+   do nome. A cor reforça, mas quem informa é o texto. */
+.trilha-evento[data-em-curso] {
+  position: relative;
+  border-left-color: var(--tinta);
+  border-left-width: 3px;
+}
+
+/* A linha do agora dentro do bloco, no ponto proporcional à duração: é o que
+   transforma "estou na aula" em "estou a um terço da aula". */
+.trilha-evento-linha {
+  position: absolute;
+  top: var(--progresso);
+  left: -3px;
+  right: 0;
+  height: 2px;
+  background: var(--tinta);
+}
+
+.trilha-evento-agora {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: var(--raio);
+  background: var(--tinta);
+  color: var(--superficie);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+
+/* O agora quando cai num vão: uma régua atravessando a trilha. Altura
+   pequena de propósito — é um instante, não um intervalo, e a trilha é em
+   escala. */
+.trilha-agora {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+  padding-left: 12px;
+  border-left: 3px solid var(--tinta);
+}
+
+.trilha-agora-hora {
+  flex: 0 0 44px;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.trilha-agora-risco {
+  flex: 1;
+  height: 2px;
+  background: var(--tinta);
+}
+
+.trilha-agora-rotulo {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tinta);
+}
+
 /* O botão ocupa a linha inteira do evento: o alvo de toque é o bloco, não um
    ícone. Sem fundo nem borda próprios — quem desenha o bloco é o `<li>`. */
 .trilha-evento-botao {

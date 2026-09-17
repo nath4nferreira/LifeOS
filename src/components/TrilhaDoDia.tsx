@@ -1,7 +1,8 @@
 import type { CSSProperties, ReactNode } from 'react'
 import type { EventoBase } from '../types'
 import { MARGEM_CONFORTAVEL, margemAntes } from '../core/insights'
-import { duracao, formatarDuracao } from '../utils/tempo'
+import { marcadorDoAgora, progressoNoEvento } from '../core/trilha'
+import { duracao, formatarDuracao, paraHorario } from '../utils/tempo'
 import './TrilhaDoDia.css'
 
 const PX_POR_MINUTO = 0.5
@@ -14,6 +15,12 @@ interface TrilhaDoDiaProps {
   eventos: EventoBase[]
   /** Recebe o id do evento tocado. Sem isto a trilha é só leitura. */
   aoEditar?: (id: string) => void
+  /**
+   * Minutos desde a meia-noite, ou `null` quando o dia na tela não é hoje.
+   * O marcador só existe no dia de hoje: desenhar "agora" sobre o dia de
+   * amanhã seria afirmar uma coisa que não é verdade.
+   */
+  agora?: number | null
 }
 
 /**
@@ -23,8 +30,12 @@ interface TrilhaDoDiaProps {
  * estreito — a pressão do dia fica legível antes da leitura. É onde o
  * produto gasta a ousadia visual que a seção 11 do briefing pede.
  */
-export function TrilhaDoDia({ eventos, aoEditar }: TrilhaDoDiaProps) {
+export function TrilhaDoDia({ eventos, aoEditar, agora = null }: TrilhaDoDiaProps) {
   const itens: ReactNode[] = []
+  // O marcador carrega o minuto a que se refere. Sem isso, `agora` continuaria
+  // `number | null` lá embaixo e cada uso pediria uma asserção de tipo.
+  const marcador =
+    agora === null ? null : { ...marcadorDoAgora(eventos, agora), agora }
 
   eventos.forEach((evento, indice) => {
     if (indice > 0) {
@@ -35,8 +46,29 @@ export function TrilhaDoDia({ eventos, aoEditar }: TrilhaDoDiaProps) {
         itens.push(<VaoTrilha key={`vao-${evento.id}`} seguinte={evento} vao={vao} />)
       }
     }
-    itens.push(<EventoTrilha key={evento.id} evento={evento} aoEditar={aoEditar} />)
+    // Quando o agora cai num vão, a linha entra antes do próximo evento — e
+    // depois do vão, para ficar colada no que ainda vai acontecer.
+    if (marcador?.tipo === 'entre' && marcador.indice === indice) {
+      itens.push(<LinhaDoAgora key="agora" agora={marcador.agora} />)
+    }
+    itens.push(
+      <EventoTrilha
+        key={evento.id}
+        evento={evento}
+        aoEditar={aoEditar}
+        agora={
+          marcador?.tipo === 'durante' && marcador.indice === indice
+            ? marcador.agora
+            : null
+        }
+      />,
+    )
   })
+
+  // O dia já acabou: a linha fecha a lista em vez de sumir.
+  if (marcador?.tipo === 'entre' && marcador.indice === eventos.length) {
+    itens.push(<LinhaDoAgora key="agora" agora={agora as number} />)
+  }
 
   return (
     <section className="trilha" aria-labelledby="trilha-titulo">
@@ -59,26 +91,40 @@ export function TrilhaDoDia({ eventos, aoEditar }: TrilhaDoDiaProps) {
 function EventoTrilha({
   evento,
   aoEditar,
+  agora,
 }: {
   evento: EventoBase
   aoEditar?: (id: string) => void
+  /** Não-nulo só no evento que está acontecendo agora. */
+  agora: number | null
 }) {
   const minutos = duracao(evento.inicio, evento.fim)
   const altura = Math.max(ALTURA_MINIMA_EVENTO, minutos * PX_POR_MINUTO)
-  const estilo = { '--altura-trilha': `${altura}px` } as CSSProperties
+  const emCurso = agora !== null
+  const estilo = {
+    '--altura-trilha': `${altura}px`,
+    // Como a trilha é em escala, a linha cai no ponto proporcional do bloco:
+    // três horas de aula com dez minutos decorridos mostram a linha no alto.
+    ...(emCurso && { '--progresso': `${progressoNoEvento(evento, agora) * 100}%` }),
+  } as CSSProperties
 
   const conteudo = (
     <>
       <span className="trilha-evento-hora">{evento.inicio}</span>
       <span className="trilha-evento-corpo">
-        <span className="trilha-evento-nome">{evento.nome}</span>
+        <span className="trilha-evento-nome">
+          {evento.nome}
+          {/* Cor e linha nunca sozinhas: o estado também é texto. */}
+          {emCurso && <span className="trilha-evento-agora"> agora</span>}
+        </span>
         <span className="trilha-evento-duracao">{formatarDuracao(minutos)}</span>
       </span>
     </>
   )
 
   return (
-    <li className="trilha-evento" style={estilo}>
+    <li className="trilha-evento" data-em-curso={emCurso || undefined} style={estilo}>
+      {emCurso && <span className="trilha-evento-linha" aria-hidden="true" />}
       {/* O bloco inteiro é o alvo de toque, não um ícone de lápis de 16px: a
           altura já vem da duração, então o alvo nunca fica abaixo dos 44px.
           `<button>` de verdade porque precisa ser focável e acionável pelo
@@ -98,6 +144,24 @@ function EventoTrilha({
       ) : (
         conteudo
       )}
+    </li>
+  )
+}
+
+/**
+ * O agora quando ele cai num vão — entre dois compromissos, antes do primeiro
+ * ou depois do último.
+ *
+ * O horário aparece escrito na mesma coluna dos horários dos eventos, para ser
+ * lido junto com eles: "são 14:32, o próximo é às 15:00" se responde só de
+ * olhar a coluna, sem contar nada.
+ */
+function LinhaDoAgora({ agora }: { agora: number }) {
+  return (
+    <li className="trilha-agora">
+      <span className="trilha-agora-hora">{paraHorario(agora)}</span>
+      <span className="trilha-agora-risco" aria-hidden="true" />
+      <span className="trilha-agora-rotulo">agora</span>
     </li>
   )
 }
