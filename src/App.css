@@ -16,7 +16,18 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.em-construcao {
+.app-estado {
   padding: 32px 20px;
+  margin: 0;
   color: var(--apagado);
+}
+
+.app-estado-erro {
+  margin: 16px 20px;
+  padding: 12px 14px;
+  border: 1px solid var(--critico);
+  border-radius: var(--raio);
+  background: var(--critico-fundo);
+  color: var(--critico);
+  font-size: 0.875rem;
 }
