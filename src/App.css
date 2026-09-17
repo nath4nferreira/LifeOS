@@ -16,6 +16,36 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* O link de pular fica fora da tela até receber foco. Não usa `display: none`
+   — isso o tiraria também da ordem de tabulação, que é justamente onde ele
+   precisa estar. */
+.app-pular {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  padding: 10px 16px;
+  transform: translateY(-120%);
+  border-radius: 0 0 var(--raio) 0;
+  background: var(--tinta);
+  color: var(--superficie);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.app-pular:focus-visible {
+  transform: translateY(0);
+}
+
+/* O `<main>` é focável por programa (o link e a troca de tela o focam), mas
+   não é um controle: o anel de foco aqui só apontaria para um retângulo
+   gigante sem dizer nada. Quem precisa da pista é o destino do salto, e esse
+   é o primeiro cabeçalho — que o leitor de tela já anuncia. */
+.app-conteudo:focus {
+  outline: none;
+}
+
 .app-estado {
   padding: 32px 20px;
   margin: 0;

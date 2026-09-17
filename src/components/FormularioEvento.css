@@ -162,6 +162,25 @@ input[type='number'].campo-controle {
   color: var(--tinta);
 }
 
+/* As duas regiões `aria-live` moram na página mesmo vazias — região montada
+   só na hora do aviso costuma não ser anunciada. Vazias elas não podem ocupar
+   espaço, e a margem do `<p>` do navegador ocupa. */
+.formulario-erro-resumo,
+.formulario-confirmacao {
+  margin: 0;
+}
+
+.formulario-erro-resumo:not(:empty) {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--critico);
+  border-radius: var(--raio);
+  background: var(--critico-fundo);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--critico);
+}
+
 .formulario-confirmacao:not(:empty) {
   margin: 0;
   padding: 10px 12px;

@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import { useId, type CSSProperties, type ReactNode } from 'react'
 import type { EventoBase } from '../types'
 import { MARGEM_CONFORTAVEL, margemAntes } from '../core/insights'
 import { marcadorDoAgora, progressoNoEvento } from '../core/trilha'
@@ -31,6 +31,9 @@ interface TrilhaDoDiaProps {
  * produto gasta a ousadia visual que a seção 11 do briefing pede.
  */
 export function TrilhaDoDia({ eventos, aoEditar, agora = null }: TrilhaDoDiaProps) {
+  // Id gerado, e não fixo: id repetido faz `aria-labelledby` apontar para o
+  // título errado, e nada na tela denuncia o erro.
+  const idTitulo = `${useId()}-titulo`
   const itens: ReactNode[] = []
   // O marcador carrega o minuto a que se refere. Sem isso, `agora` continuaria
   // `number | null` lá embaixo e cada uso pediria uma asserção de tipo.
@@ -67,12 +70,12 @@ export function TrilhaDoDia({ eventos, aoEditar, agora = null }: TrilhaDoDiaProp
 
   // O dia já acabou: a linha fecha a lista em vez de sumir.
   if (marcador?.tipo === 'entre' && marcador.indice === eventos.length) {
-    itens.push(<LinhaDoAgora key="agora" agora={agora as number} />)
+    itens.push(<LinhaDoAgora key="agora" agora={marcador.agora} />)
   }
 
   return (
-    <section className="trilha" aria-labelledby="trilha-titulo">
-      <h2 id="trilha-titulo" className="trilha-titulo">
+    <section className="trilha" aria-labelledby={idTitulo}>
+      <h2 id={idTitulo} className="trilha-titulo">
         Seu dia em escala
       </h2>
       {/* Dia vazio não é a mesma coisa que tela quebrada (heurística 1): o

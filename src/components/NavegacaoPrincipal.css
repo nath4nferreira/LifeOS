@@ -22,8 +22,12 @@
   cursor: pointer;
 }
 
+/* Fundo E peso, não só cor: a diferença entre `--apagado` e `--tinta` é de
+   luminância, e sozinha ela é sutil demais num rótulo de 12px. */
 .navegacao-item[aria-current='page'] {
+  background: var(--superficie-2);
   color: var(--tinta);
+  font-weight: 600;
 }
 
 .navegacao-item:focus-visible {
@@ -54,10 +58,5 @@
     border-radius: var(--raio);
     font-size: 0.875rem;
     text-align: left;
-  }
-
-  .navegacao-item[aria-current='page'] {
-    background: var(--superficie-2);
-    font-weight: 600;
   }
 }

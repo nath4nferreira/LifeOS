@@ -83,6 +83,7 @@ export function FormularioEvento({
   const [novaExcecao, setNovaExcecao] = useState('')
 
   const erros = validarRascunho(rascunho)
+  const quantosErros = Object.keys(erros).length
   const errosVisiveis: ErrosDoRascunho = tentouSalvar ? erros : {}
   // Ao editar, o próprio evento não conta como conflito consigo mesmo.
   const conflitos = sobreposicoesDe(rascunho, doDia, evento?.id)
@@ -128,7 +129,7 @@ export function FormularioEvento({
   async function enviar(submissao: FormEvent) {
     submissao.preventDefault()
     setTentouSalvar(true)
-    if (Object.keys(erros).length > 0) return
+    if (quantosErros > 0) return
 
     // Editar reaproveita o id; criar gera um novo. É a única diferença entre
     // os dois caminhos — o resto do formulário não sabe em qual modo está.
@@ -417,6 +418,19 @@ export function FormularioEvento({
             todas as ocorrências.
           </p>
         )}
+
+        {/* Os erros de campo já estão ligados aos controles por
+            `aria-describedby`, mas quem tentou salvar está com o foco no botão
+            e não ouviria nenhum deles: a tela muda em silêncio. Esta linha é o
+            aviso de que a submissão não passou — some sozinha quando o último
+            erro é corrigido, porque a validação volta a ser ao vivo. */}
+        <p className="formulario-erro-resumo" role="alert">
+          {tentouSalvar && quantosErros > 0
+            ? quantosErros === 1
+              ? 'Um campo precisa de correção antes de salvar.'
+              : `${quantosErros} campos precisam de correção antes de salvar.`
+            : ''}
+        </p>
 
         <button type="submit" className="formulario-salvar" disabled={salvando}>
           {salvando ? 'Salvando…' : editando ? 'Salvar alterações' : 'Salvar compromisso'}

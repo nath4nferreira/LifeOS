@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { TEMAS, useTema, type Tema } from '../hooks/useTema'
 import './PainelDeAjustes.css'
 
@@ -21,6 +21,7 @@ const ROTULO_TEMA: Record<Tema, string> = {
  * uma ação séria e não pode ficar a um toque de distância do uso normal.
  */
 export function PainelDeAjustes({ aoRecarregarDemonstracao }: PainelDeAjustesProps) {
+  const idBase = useId()
   const { tema, definirTema } = useTema()
   const [confirmando, setConfirmando] = useState(false)
   const [recarregando, setRecarregando] = useState(false)
@@ -38,8 +39,8 @@ export function PainelDeAjustes({ aoRecarregarDemonstracao }: PainelDeAjustesPro
   }
 
   return (
-    <section className="ajustes" aria-labelledby="ajustes-titulo">
-      <h2 id="ajustes-titulo" className="ajustes-titulo">
+    <section className="ajustes" aria-labelledby={`${idBase}-titulo`}>
+      <h2 id={`${idBase}-titulo`} className="ajustes-titulo">
         Ajustes
       </h2>
 
@@ -47,10 +48,14 @@ export function PainelDeAjustes({ aoRecarregarDemonstracao }: PainelDeAjustesPro
           isso o leitor de tela anuncia "Claro, botão" sem dizer claro de quê. */}
       <fieldset className="ajustes-grupo">
         <legend className="ajustes-legenda">Tema</legend>
-        <p className="ajustes-ajuda" id="ajustes-tema-ajuda">
+        <p className="ajustes-ajuda" id={`${idBase}-tema-ajuda`}>
           "Do sistema" acompanha o modo escuro do seu aparelho.
         </p>
-        <div className="ajustes-opcoes" role="group" aria-describedby="ajustes-tema-ajuda">
+        <div
+          className="ajustes-opcoes"
+          role="group"
+          aria-describedby={`${idBase}-tema-ajuda`}
+        >
           {TEMAS.map((opcao) => (
             <button
               key={opcao}

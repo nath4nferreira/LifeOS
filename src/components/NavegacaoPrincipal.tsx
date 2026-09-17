@@ -23,6 +23,14 @@ const ITENS: { aba: Aba; rotulo: string }[] = [
  *
  * `aria-current="page"` marca a aba ativa para leitor de tela; a cor sozinha
  * nunca é a única pista.
+ *
+ * Vem por último no DOM, e isso é escolha, não descuido. No mobile — a tela
+ * que o briefing manda projetar primeiro — última no DOM é também última na
+ * tela, e a ordem de tabulação bate com a ordem visual. No desktop a coluna
+ * fica à esquerda e a tabulação passa a chegar nela por último; inverter o
+ * DOM só trocaria de lugar o mesmo descompasso, agora no mobile. Quem resolve
+ * o caso do desktop é o link "Pular para o conteúdo" do App, mais o rótulo do
+ * landmark, que deixa a navegação alcançável direto por leitor de tela.
  */
 export function NavegacaoPrincipal({ ativa, aoSelecionar }: NavegacaoPrincipalProps) {
   return (

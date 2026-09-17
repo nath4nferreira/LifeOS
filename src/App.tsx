@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   gerarInsights,
   insightsDeTransicao,
@@ -48,6 +48,21 @@ function App() {
   const [data, setData] = useState(hoje)
   const doDia = eventosDoDia(eventos, data)
 
+  // Foco depois de uma troca de tela que apaga o botão que a disparou.
+  //
+  // Abrir a edição pela trilha destrói o próprio botão clicado; o navegador
+  // devolve o foco ao `<body>` e quem usa teclado recomeça do início da
+  // página. O contador existe para que o efeito rode a cada pedido, mesmo
+  // quando o destino é o mesmo de antes — um `useEffect` em `aba` não
+  // dispararia ao trocar de evento editado, e dispararia à toa nos botões da
+  // navegação, que continuam existindo e não devem perder o foco.
+  const conteudo = useRef<HTMLElement>(null)
+  const [pedidosDeFoco, setPedidosDeFoco] = useState(0)
+  useEffect(() => {
+    if (pedidosDeFoco > 0) conteudo.current?.focus()
+  }, [pedidosDeFoco])
+  const focarConteudo = () => setPedidosDeFoco((n) => n + 1)
+
   // A regra 7 é a única que cruza dois dias, então é a única que precisa do
   // dia seguinte. O motor a mantém fora de `gerarInsights` justamente porque
   // aquele enxerga um dia só.
@@ -92,11 +107,13 @@ function App() {
   function editar(id: string) {
     setEditandoId(id)
     setAba('adicionar')
+    focarConteudo()
   }
 
   function fecharEdicao() {
     setEditandoId(null)
     setAba('dia')
+    focarConteudo()
   }
 
   const insights = gerarInsights(doDia, previsao)
@@ -108,6 +125,14 @@ function App() {
 
   return (
     <div className="app-shell">
+      {/* WCAG 2.4.1: antes do conteúdo há a faixa de status, o seletor de dia
+          e as setas — seis paradas de teclado que se repetem em toda tela. O
+          link só aparece quando recebe foco, e é o primeiro elemento focável
+          da página de propósito. */}
+      <a className="app-pular" href="#conteudo">
+        Pular para o conteúdo
+      </a>
+
       <FaixaDeStatus
         data={data}
         previsao={previsao}
@@ -122,7 +147,9 @@ function App() {
         aoAvancar={avancarDias}
       />
 
-      <main className="app-conteudo">
+      {/* `tabIndex={-1}` não põe o `<main>` na ordem de tabulação: só o torna
+          alvo válido de `.focus()` e do salto do link acima. */}
+      <main className="app-conteudo" id="conteudo" ref={conteudo} tabIndex={-1}>
         {/* Visibilidade do estado do sistema (heurística 1): carregar e
             falhar são estados visíveis, não telas em branco. */}
         {carregando && (

@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import type { EventoBase, Previsao } from '../types'
 import { ROTULO_CATEGORIA } from '../types'
 import { cargaPorArea } from '../core/insights'
@@ -32,12 +33,13 @@ export function PainelDeContexto({
   eventos,
   agora,
 }: PainelDeContextoProps) {
+  const idBase = useId()
   const areas = cargaPorArea(eventos)
 
   return (
     <aside className="contexto" aria-label="Contexto do dia">
-      <section className="contexto-bloco" aria-labelledby="contexto-clima">
-        <h2 id="contexto-clima" className="contexto-titulo">
+      <section className="contexto-bloco" aria-labelledby={`${idBase}-clima`}>
+        <h2 id={`${idBase}-clima`} className="contexto-titulo">
           Clima por faixa
         </h2>
         {previsao ? (
@@ -74,8 +76,8 @@ export function PainelDeContexto({
         )}
       </section>
 
-      <section className="contexto-bloco" aria-labelledby="contexto-areas">
-        <h2 id="contexto-areas" className="contexto-titulo">
+      <section className="contexto-bloco" aria-labelledby={`${idBase}-areas`}>
+        <h2 id={`${idBase}-areas`} className="contexto-titulo">
           Horas por área
         </h2>
         {areas.length > 0 ? (
