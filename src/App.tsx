@@ -22,6 +22,7 @@ import { PainelDeContexto } from './components/PainelDeContexto'
 import { PainelDeAjustes } from './components/PainelDeAjustes'
 import { FormularioEvento } from './components/FormularioEvento'
 import { NavegacaoPrincipal, type Aba } from './components/NavegacaoPrincipal'
+import { DicaDeInstalacao } from './components/DicaDeInstalacao'
 import './App.css'
 
 function App() {
@@ -198,6 +199,11 @@ function App() {
                 mostrarTodos
               />
             )}
+
+            {/* Por último e só aqui: é sugestão, não conteúdo. Fica abaixo do
+                que a pessoa veio ver, e não atrapalha quem está no meio de
+                preencher um formulário em outra aba. */}
+            <DicaDeInstalacao />
           </>
         )}
 

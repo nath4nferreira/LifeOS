@@ -3,7 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- O iOS ignora os ícones do manifesto; o da tela de início vem daqui. -->
+    <link rel="apple-touch-icon" href="/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--
+      Duas `theme-color`: a barra do sistema acompanha o tema em vez de ficar
+      clara sobre um app escuro. O navegador escolhe pela media query.
+    -->
+    <meta name="theme-color" content="#eef0f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#10141a" media="(prefers-color-scheme: dark)" />
+    <meta name="description" content="Sua agenda lida, não só listada." />
     <title>LifeOS</title>
     <!--
       O tema é aplicado antes de qualquer pintura, e por isso mora aqui e não

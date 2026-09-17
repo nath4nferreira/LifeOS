@@ -1,0 +1,31 @@
+.dica-instalacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 20px 24px;
+  padding: 12px 14px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--superficie);
+}
+
+.dica-instalacao-texto {
+  flex: 1 1 180px;
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--tinta);
+}
+
+.dica-instalacao-fechar {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--tinta);
+  cursor: pointer;
+}
