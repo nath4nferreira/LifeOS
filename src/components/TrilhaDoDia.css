@@ -1,0 +1,79 @@
+.trilha {
+  padding: 8px 20px 24px;
+}
+
+.trilha-titulo {
+  margin: 0 0 12px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--tinta);
+}
+
+.trilha-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.trilha-evento,
+.trilha-vao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--altura-trilha);
+  padding-left: 12px;
+  border-left: 3px solid var(--linha-forte);
+}
+
+.trilha-evento-hora,
+.trilha-vao-hora {
+  flex: 0 0 44px;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  color: var(--apagado);
+}
+
+.trilha-evento-corpo {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.trilha-evento-nome {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+.trilha-evento-duracao {
+  font-family: var(--mono);
+  color: var(--apagado);
+  font-size: 0.8125rem;
+}
+
+/* Vão normal: mesma trilha, linha mais fraca — é ausência de compromisso, não um bloco. */
+.trilha-vao {
+  border-left-color: var(--linha);
+}
+
+.trilha-vao-texto {
+  font-size: 0.75rem;
+  color: var(--apagado);
+}
+
+/* Vão apertado: a mesma sobra que a Regra 2 marcaria como "atenção" fica
+   fisicamente estreita e com contorno pontilhado — cor nunca sozinha, o
+   texto "margem apertada" também aparece. */
+.trilha-vao[data-apertado] {
+  border-left-style: dotted;
+  border-left-color: var(--atencao);
+}
+
+.trilha-vao[data-apertado] .trilha-vao-texto {
+  color: var(--atencao);
+}
+
+.trilha-vao-aviso {
+  font-weight: 600;
+}

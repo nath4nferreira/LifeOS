@@ -23,7 +23,7 @@ import type {
 } from '../types'
 import { duracao, formatarDuracao, paraHorario, paraMinutos } from '../utils/tempo'
 
-const MARGEM_CONFORTAVEL = 10 // min de sobra considerados tranquilos
+export const MARGEM_CONFORTAVEL = 10 // min de sobra considerados tranquilos
 const JANELA_LIVRE_MINIMA = 90 // min a partir de que vale sugerir uso
 const CARGA_ALTA = 9 * 60 // min comprometidos = dia cheio
 const CHUVA_PROVAVEL = 0.5 // probabilidade que aciona aviso
@@ -215,6 +215,19 @@ function sobreposicao(anterior: EventoBase, seguinte: EventoBase, vao: number): 
 }
 
 /**
+ * Sobra entre dois eventos consecutivos, descontado o deslocamento do
+ * segundo — a mesma conta da Regra 2. `null` quando o segundo evento não sai
+ * de casa (deslocamento 0): não há caminho para avaliar.
+ *
+ * Exportada para a trilha visual (`TrilhaDoDia`) marcar o mesmo vão que esta
+ * regra marcaria como apertado, sem duplicar o `if` de negócio no componente.
+ */
+export function margemAntes(seguinte: EventoBase, vao: number): number | null {
+  if (seguinte.deslocamento === 0) return null
+  return vao - seguinte.deslocamento
+}
+
+/**
  * Regra 2 — margem vs. deslocamento.
  *
  * `margem = vão − deslocamento do segundo`. Eventos com deslocamento 0 são
@@ -225,9 +238,8 @@ function margemDeDeslocamento(
   seguinte: EventoBase,
   vao: number,
 ): Insight | null {
-  if (seguinte.deslocamento === 0) return null
-
-  const margem = vao - seguinte.deslocamento
+  const margem = margemAntes(seguinte, vao)
+  if (margem === null) return null
   if (margem >= MARGEM_CONFORTAVEL) return null
 
   const caminho = formatarDuracao(seguinte.deslocamento)

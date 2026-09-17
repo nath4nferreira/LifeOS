@@ -1,14 +1,19 @@
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  height: 100dvh;
   max-width: 480px;
   margin: 0 auto;
   background: var(--fundo);
 }
 
+/* Só o conteúdo rola — faixa de status e navegação inferior ficam fixas,
+   como em qualquer app mobile de verdade. */
 .app-conteudo {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .em-construcao {

@@ -3,6 +3,7 @@ import { gerarInsights, resumoDoDia, vereditoDoDia } from './core/insights'
 import type { EventoBase, Previsao } from './types'
 import { FaixaDeStatus } from './components/FaixaDeStatus'
 import { Veredito } from './components/Veredito'
+import { TrilhaDoDia } from './components/TrilhaDoDia'
 import { NavegacaoInferior, type Aba } from './components/NavegacaoInferior'
 import './App.css'
 
@@ -47,12 +48,15 @@ function App() {
 
       <main className="app-conteudo">
         {aba === 'dia' && (
-          <Veredito
-            texto={veredito}
-            comprometido={comprometido}
-            emAberto={emAberto}
-            pontos={insights.length}
-          />
+          <>
+            <Veredito
+              texto={veredito}
+              comprometido={comprometido}
+              emAberto={emAberto}
+              pontos={insights.length}
+            />
+            <TrilhaDoDia eventos={EVENTOS_DE_HOJE} />
+          </>
         )}
         {aba === 'adicionar' && <p className="em-construcao">Em construção.</p>}
         {aba === 'alertas' && <p className="em-construcao">Em construção.</p>}
