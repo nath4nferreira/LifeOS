@@ -2,7 +2,7 @@ import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import type { Categoria, Evento, EventoBase } from '../types'
 import { CATEGORIAS } from '../types'
 import {
-  minutosDeDeslocamento,
+  montarEvento,
   rascunhoVazio,
   sobreposicoesDe,
   validarRascunho,
@@ -10,7 +10,7 @@ import {
   type RascunhoEvento,
 } from '../core/validacao'
 import { novoId } from '../services/identidade'
-import { formatarDataCurta } from '../utils/tempo'
+import { dataValida, formatarDataCurta } from '../utils/tempo'
 import './FormularioEvento.css'
 
 /** Os nomes que o usuário lê. A chave é do sistema, o rótulo é dele. */
@@ -23,6 +23,17 @@ const ROTULO_CATEGORIA: Record<Categoria, string> = {
   financas: 'Finanças',
 }
 
+/** Índice 0 = domingo, igual a `EventoFixo.diasDaSemana`. */
+const DIAS = [
+  { numero: 0, curto: 'D', longo: 'domingo' },
+  { numero: 1, curto: 'S', longo: 'segunda-feira' },
+  { numero: 2, curto: 'T', longo: 'terça-feira' },
+  { numero: 3, curto: 'Q', longo: 'quarta-feira' },
+  { numero: 4, curto: 'Q', longo: 'quinta-feira' },
+  { numero: 5, curto: 'S', longo: 'sexta-feira' },
+  { numero: 6, curto: 'S', longo: 'sábado' },
+]
+
 interface FormularioEventoProps {
   /** Data que o formulário abre preenchida — o dia que o usuário está vendo. */
   data: string
@@ -32,7 +43,7 @@ interface FormularioEventoProps {
 }
 
 /**
- * Criação de evento pontual.
+ * Criação de evento, pontual ou recorrente.
  *
  * Três decisões de usabilidade:
  *
@@ -52,14 +63,32 @@ export function FormularioEvento({ data, doDia, aoSalvar }: FormularioEventoProp
   const [tentouSalvar, setTentouSalvar] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [confirmacao, setConfirmacao] = useState('')
+  const [novaExcecao, setNovaExcecao] = useState('')
 
   const erros = validarRascunho(rascunho)
   const errosVisiveis: ErrosDoRascunho = tentouSalvar ? erros : {}
   const conflitos = sobreposicoesDe(rascunho, doDia)
+  const recorrente = rascunho.tipo === 'fixo'
 
-  function alterar(campo: keyof RascunhoEvento, valor: string) {
+  function alterar<C extends keyof RascunhoEvento>(campo: C, valor: RascunhoEvento[C]) {
     setRascunho((atual) => ({ ...atual, [campo]: valor }))
     setConfirmacao('')
+  }
+
+  function alternarDia(numero: number) {
+    const marcados = rascunho.diasDaSemana
+    alterar(
+      'diasDaSemana',
+      marcados.includes(numero)
+        ? marcados.filter((d) => d !== numero)
+        : [...marcados, numero].sort((a, b) => a - b),
+    )
+  }
+
+  function adicionarExcecao() {
+    if (!dataValida(novaExcecao) || rascunho.excecoes.includes(novaExcecao)) return
+    alterar('excecoes', [...rascunho.excecoes, novaExcecao].sort())
+    setNovaExcecao('')
   }
 
   async function enviar(evento: FormEvent) {
@@ -69,22 +98,15 @@ export function FormularioEvento({ data, doDia, aoSalvar }: FormularioEventoProp
 
     setSalvando(true)
     try {
-      await aoSalvar({
-        tipo: 'pontual',
-        id: novoId(),
-        nome: rascunho.nome.trim(),
-        categoria: rascunho.categoria as Categoria,
-        data: rascunho.data,
-        inicio: rascunho.inicio,
-        fim: rascunho.fim,
-        deslocamento: minutosDeDeslocamento(rascunho.deslocamento) ?? 0,
-      })
+      await aoSalvar(montarEvento(rascunho, novoId()))
       setConfirmacao(
-        `${rascunho.nome.trim()} salvo para ${formatarDataCurta(rascunho.data)}.`,
+        recorrente
+          ? `${rascunho.nome.trim()} salvo para todas as semanas, até ${formatarDataCurta(rascunho.validoAte)}.`
+          : `${rascunho.nome.trim()} salvo para ${formatarDataCurta(rascunho.data)}.`,
       )
       // Limpa só o que muda de evento para evento: a data continua, porque
       // quem adiciona um compromisso costuma adicionar o seguinte no mesmo dia.
-      setRascunho((atual) => ({ ...rascunhoVazio(atual.data) }))
+      setRascunho((atual) => ({ ...rascunhoVazio(data), tipo: atual.tipo }))
       setTentouSalvar(false)
     } catch {
       // O hook de eventos já expõe a mensagem de erro na tela.
@@ -100,6 +122,29 @@ export function FormularioEvento({ data, doDia, aoSalvar }: FormularioEventoProp
       </h2>
 
       <form className="formulario-campos" onSubmit={enviar} noValidate>
+        {/* Correspondência com o mundo real (heurística 2): "toda semana" é
+            como as pessoas falam; "recorrência" é como os sistemas falam. */}
+        <fieldset className="formulario-tipo">
+          <legend className="campo-rotulo">Com que frequência</legend>
+          {(
+            [
+              { valor: 'pontual', rotulo: 'Uma vez' },
+              { valor: 'fixo', rotulo: 'Toda semana' },
+            ] as const
+          ).map((opcao) => (
+            <label key={opcao.valor} className="formulario-tipo-opcao">
+              <input
+                type="radio"
+                name={`${idBase}-tipo`}
+                value={opcao.valor}
+                checked={rascunho.tipo === opcao.valor}
+                onChange={() => alterar('tipo', opcao.valor)}
+              />
+              <span>{opcao.rotulo}</span>
+            </label>
+          ))}
+        </fieldset>
+
         <Campo id={`${idBase}-nome`} rotulo="Nome" erro={errosVisiveis.nome}>
           {(props) => (
             <input
@@ -129,16 +174,18 @@ export function FormularioEvento({ data, doDia, aoSalvar }: FormularioEventoProp
           )}
         </Campo>
 
-        <Campo id={`${idBase}-data`} rotulo="Data" erro={errosVisiveis.data}>
-          {(props) => (
-            <input
-              {...props}
-              type="date"
-              value={rascunho.data}
-              onChange={(e) => alterar('data', e.target.value)}
-            />
-          )}
-        </Campo>
+        {!recorrente && (
+          <Campo id={`${idBase}-data`} rotulo="Data" erro={errosVisiveis.data}>
+            {(props) => (
+              <input
+                {...props}
+                type="date"
+                value={rascunho.data}
+                onChange={(e) => alterar('data', e.target.value)}
+              />
+            )}
+          </Campo>
+        )}
 
         <div className="formulario-par">
           <Campo id={`${idBase}-inicio`} rotulo="Início" erro={errosVisiveis.inicio}>
@@ -181,6 +228,128 @@ export function FormularioEvento({ data, doDia, aoSalvar }: FormularioEventoProp
             />
           )}
         </Campo>
+
+        {recorrente && (
+          <>
+            {/* Um grupo de caixas de seleção precisa de fieldset + legend: sem
+                isso o leitor de tela anuncia sete caixas soltas sem dizer do quê. */}
+            <fieldset
+              className="formulario-dias"
+              aria-invalid={errosVisiveis.diasDaSemana ? true : undefined}
+              aria-describedby={
+                errosVisiveis.diasDaSemana ? `${idBase}-dias-erro` : undefined
+              }
+            >
+              <legend className="campo-rotulo">Dias da semana</legend>
+              <div className="formulario-dias-lista">
+                {DIAS.map((dia) => (
+                  <label key={dia.numero} className="formulario-dia">
+                    <input
+                      type="checkbox"
+                      checked={rascunho.diasDaSemana.includes(dia.numero)}
+                      onChange={() => alternarDia(dia.numero)}
+                    />
+                    {/* A letra é a pista visual; o nome inteiro é o que o
+                        leitor de tela lê, porque "S" sozinho não diz nada. */}
+                    <span aria-hidden="true">{dia.curto}</span>
+                    <span className="apenas-leitor-de-tela">{dia.longo}</span>
+                  </label>
+                ))}
+              </div>
+              {errosVisiveis.diasDaSemana && (
+                <p id={`${idBase}-dias-erro`} className="campo-erro">
+                  {errosVisiveis.diasDaSemana}
+                </p>
+              )}
+            </fieldset>
+
+            <div className="formulario-par">
+              <Campo
+                id={`${idBase}-valido-de`}
+                rotulo="Vale a partir de"
+                erro={errosVisiveis.validoDe}
+              >
+                {(props) => (
+                  <input
+                    {...props}
+                    type="date"
+                    value={rascunho.validoDe}
+                    onChange={(e) => alterar('validoDe', e.target.value)}
+                  />
+                )}
+              </Campo>
+
+              <Campo
+                id={`${idBase}-valido-ate`}
+                rotulo="Vale até"
+                dica="Impede que a aula apareça nas férias."
+                erro={errosVisiveis.validoAte}
+              >
+                {(props) => (
+                  <input
+                    {...props}
+                    type="date"
+                    value={rascunho.validoAte}
+                    onChange={(e) => alterar('validoAte', e.target.value)}
+                  />
+                )}
+              </Campo>
+            </div>
+
+            {/* Exceções: cancelar uma ocorrência é adicionar a data aqui, e não
+                editar uma instância de recorrência — o buraco clássico do modelo. */}
+            <div className="formulario-excecoes">
+              <Campo
+                id={`${idBase}-excecao`}
+                rotulo="Dias em que não acontece"
+                dica="Feriado, semana de prova, viagem."
+              >
+                {(props) => (
+                  <input
+                    {...props}
+                    type="date"
+                    value={novaExcecao}
+                    onChange={(e) => setNovaExcecao(e.target.value)}
+                  />
+                )}
+              </Campo>
+
+              <button
+                type="button"
+                className="formulario-excecao-adicionar"
+                onClick={adicionarExcecao}
+                disabled={!dataValida(novaExcecao)}
+              >
+                Adicionar exceção
+              </button>
+
+              {rascunho.excecoes.length > 0 && (
+                <ul className="formulario-excecao-lista">
+                  {rascunho.excecoes.map((excecao) => (
+                    <li key={excecao} className="formulario-excecao">
+                      <span>{formatarDataCurta(excecao)}</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          alterar(
+                            'excecoes',
+                            rascunho.excecoes.filter((e) => e !== excecao),
+                          )
+                        }
+                      >
+                        Remover
+                        <span className="apenas-leitor-de-tela">
+                          {' '}
+                          a exceção de {formatarDataCurta(excecao)}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </>
+        )}
 
         {/* Prevenção de erros (heurística 5): o aviso aparece antes de salvar,
             e mesmo assim deixa salvar. */}

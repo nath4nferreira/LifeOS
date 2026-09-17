@@ -15,6 +15,15 @@
   gap: 16px;
 }
 
+/* Item de grid tem `min-width: auto`, e um `<input>` tem largura mínima
+   intrínseca de ~170px. Sem isto a coluna inteira era esticada pelos dois
+   campos de horário e o formulário estourava a tela em 320px. */
+.formulario-campos > *,
+.formulario-par > *,
+.campo-controle {
+  min-width: 0;
+}
+
 /* Início e término andam juntos: são a mesma decisão vista de dois lados. */
 .formulario-par {
   display: grid;
@@ -114,6 +123,148 @@ input[type='number'].campo-controle {
   color: var(--bom);
 }
 
+/* Frequência: dois botões de rádio que parecem um seletor segmentado. */
+.formulario-tipo,
+.formulario-dias {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.formulario-tipo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.formulario-tipo legend,
+.formulario-dias legend {
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+.formulario-tipo-opcao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+/* Marcado: fundo cheio além do ponto do rádio, que continua visível. */
+.formulario-tipo-opcao:has(input:checked) {
+  background: var(--superficie-2);
+  border-color: var(--tinta);
+}
+
+/* A caixa de seleção do dia é invisível, então o foco precisa aparecer no
+   quadrado que a envolve — senão a navegação por teclado fica cega. */
+.formulario-dia:has(input:focus-visible) {
+  outline: 2px solid var(--info);
+  outline-offset: 2px;
+}
+
+/* Dias da semana: sete alvos de toque, nunca menores que 44px. */
+.formulario-dias-lista {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.formulario-dia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--apagado);
+  cursor: pointer;
+}
+
+/* A caixa de seleção some da tela, não da árvore de acessibilidade: continua
+   focável e anunciada, e é ela que carrega o estado marcado. */
+.formulario-dia input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.formulario-dia:has(input:checked) {
+  border-color: var(--tinta);
+  background: var(--tinta);
+  color: var(--superficie);
+}
+
+.formulario-excecoes {
+  display: grid;
+  gap: 10px;
+}
+
+.formulario-excecao-adicionar {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.formulario-excecao-adicionar:disabled {
+  color: var(--apagado);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.formulario-excecao-lista {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.formulario-excecao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-left: 12px;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  background: var(--superficie-2);
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  color: var(--apagado);
+}
+
+.formulario-excecao button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  font-family: var(--sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--critico);
+  cursor: pointer;
+}
+
 /* Tablet: os campos curtos deixam de ocupar a linha inteira (seção 11). */
 @media (min-width: 481px) {
   .formulario-campos {
@@ -121,11 +272,16 @@ input[type='number'].campo-controle {
     align-items: start;
   }
 
-  .campo:has(> input[type='text']),
-  .formulario-aviso,
-  .formulario-confirmacao,
-  .formulario-salvar {
+  /* Tudo ocupa a linha inteira por padrão, e só o que é curto se encolhe.
+     O contrário — listar o que deve crescer — quebra a cada campo novo. */
+  .formulario-campos > * {
     grid-column: 1 / -1;
+  }
+
+  .formulario-campos > .campo:has(select),
+  .formulario-campos > .campo:has(input[type='date']),
+  .formulario-campos > .campo:has(input[type='number']) {
+    grid-column: span 1;
   }
 
   .formulario-par {

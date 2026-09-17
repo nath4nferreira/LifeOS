@@ -27,6 +27,25 @@ button {
   font-family: inherit;
 }
 
+/**
+ * Texto só para leitor de tela.
+ *
+ * Não usa `display: none` nem `visibility: hidden` — os dois removem o
+ * elemento da árvore de acessibilidade também, que é exatamente o contrário
+ * do que se quer aqui.
+ */
+.apenas-leitor-de-tela {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}
+
 /* Foco sempre visível, com contraste próprio — nunca some, nunca depende só do navegador. */
 :focus-visible {
   outline: 2px solid var(--info);

@@ -8,12 +8,22 @@
  * RESTRIÇÃO DE PORTABILIDADE: função pura, sem React, DOM ou I/O.
  */
 
-import type { Categoria, EventoBase } from '../types'
+import type { Categoria, Evento, EventoBase } from '../types'
 import { CATEGORIAS } from '../types'
-import { dataValida, duracao, horarioValido, paraMinutos } from '../utils/tempo'
+import {
+  dataValida,
+  diaDaSemana,
+  duracao,
+  horarioValido,
+  paraMinutos,
+  somarDias,
+} from '../utils/tempo'
 
 /** Um deslocamento maior que isso é erro de digitação, não uma viagem. */
 const DESLOCAMENTO_MAXIMO = 8 * 60
+
+/** Validade que um evento fixo recém-criado recebe: um semestre. */
+const VALIDADE_PADRAO_EM_DIAS = 120
 
 /**
  * O formulário em texto, antes de virar evento.
@@ -21,14 +31,27 @@ const DESLOCAMENTO_MAXIMO = 8 * 60
  * Os campos são `string` porque é isso que um `<input>` devolve — inclusive o
  * deslocamento. Validar o texto cru é o que permite distinguir "vazio" de
  * "zero", que num campo numérico significam coisas bem diferentes.
+ *
+ * O rascunho carrega os campos dos dois tipos ao mesmo tempo, e `tipo` decide
+ * quais valem. É o que permite alternar entre "uma vez" e "toda semana" sem
+ * perder o que já foi digitado.
  */
 export interface RascunhoEvento {
+  tipo: 'pontual' | 'fixo'
   nome: string
   categoria: string
-  data: string
   inicio: string
   fim: string
   deslocamento: string
+
+  /** Só para `pontual`. */
+  data: string
+
+  /** Só para `fixo`. */
+  diasDaSemana: number[]
+  validoDe: string
+  validoAte: string
+  excecoes: string[]
 }
 
 export type CampoDeEvento = keyof RascunhoEvento
@@ -37,14 +60,54 @@ export type ErrosDoRascunho = Partial<Record<CampoDeEvento, string>>
 
 export function rascunhoVazio(data: string): RascunhoEvento {
   return {
+    tipo: 'pontual',
     nome: '',
     categoria: 'pessoal',
-    data,
     inicio: '',
     fim: '',
     // Zero é o padrão honesto: a maioria dos eventos de quem estuda e
     // trabalha de casa não tem deslocamento nenhum.
     deslocamento: '0',
+
+    data,
+
+    // O dia que o usuário está vendo já vem marcado: quem abre o formulário
+    // numa terça e escolhe "toda semana" quase sempre quer terças.
+    diasDaSemana: [diaDaSemana(data)],
+    validoDe: data,
+    validoAte: somarDias(data, VALIDADE_PADRAO_EM_DIAS),
+    excecoes: [],
+  }
+}
+
+/**
+ * O rascunho já validado virando evento.
+ *
+ * Só chame depois de `validarRascunho` devolver um objeto vazio: as conversões
+ * aqui assumem que os campos são válidos. O `id` vem de fora porque criar é
+ * gerar um novo e editar é reaproveitar o existente.
+ */
+export function montarEvento(rascunho: RascunhoEvento, id: string): Evento {
+  const comum = {
+    id,
+    nome: rascunho.nome.trim(),
+    categoria: rascunho.categoria as Categoria,
+    inicio: rascunho.inicio,
+    fim: rascunho.fim,
+    deslocamento: minutosDeDeslocamento(rascunho.deslocamento) ?? 0,
+  }
+
+  if (rascunho.tipo === 'pontual') {
+    return { ...comum, tipo: 'pontual', data: rascunho.data }
+  }
+
+  return {
+    ...comum,
+    tipo: 'fixo',
+    diasDaSemana: [...rascunho.diasDaSemana].sort((a, b) => a - b),
+    validoDe: rascunho.validoDe,
+    validoAte: rascunho.validoAte,
+    excecoes: [...rascunho.excecoes].sort(),
   }
 }
 
@@ -65,8 +128,25 @@ export function validarRascunho(rascunho: RascunhoEvento): ErrosDoRascunho {
     erros.categoria = 'Escolha uma categoria.'
   }
 
-  if (!dataValida(rascunho.data)) {
-    erros.data = 'Informe uma data válida.'
+  if (rascunho.tipo === 'pontual') {
+    if (!dataValida(rascunho.data)) {
+      erros.data = 'Informe uma data válida.'
+    }
+  } else {
+    if (rascunho.diasDaSemana.length === 0) {
+      erros.diasDaSemana = 'Escolha pelo menos um dia da semana.'
+    }
+
+    if (!dataValida(rascunho.validoDe)) {
+      erros.validoDe = 'Informe a partir de quando isso vale.'
+    }
+
+    if (!dataValida(rascunho.validoAte)) {
+      erros.validoAte = 'Informe até quando isso vale.'
+    } else if (dataValida(rascunho.validoDe) && rascunho.validoAte < rascunho.validoDe) {
+      // Datas ISO comparam como texto na mesma ordem que como data.
+      erros.validoAte = 'O fim da validade precisa vir depois do início.'
+    }
   }
 
   if (!horarioValido(rascunho.inicio)) {

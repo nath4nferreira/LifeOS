@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { EventoBase } from '../types'
 import {
   minutosDeDeslocamento,
+  montarEvento,
   rascunhoVazio,
   sobreposicoesDe,
   validarRascunho,
@@ -36,6 +37,18 @@ describe('validarRascunho', () => {
     expect(validarRascunho(rascunho({ data: '2026-02-30' })).data).toBeDefined()
   })
 
+  it('ignora a data quando o evento é fixo, e a recorrência quando é pontual', () => {
+    // Um rascunho carrega os campos dos dois tipos ao mesmo tempo para não
+    // perder o que foi digitado ao alternar; só os do tipo escolhido valem.
+    const comoFixo = validarRascunho(
+      rascunho({ tipo: 'fixo', data: 'lixo', diasDaSemana: [2] }),
+    )
+    expect(comoFixo).toEqual({})
+
+    const comoPontual = validarRascunho(rascunho({ tipo: 'pontual', diasDaSemana: [] }))
+    expect(comoPontual).toEqual({})
+  })
+
   it('recusa horário fora do formato', () => {
     expect(validarRascunho(rascunho({ inicio: '25:00' })).inicio).toBeDefined()
     expect(validarRascunho(rascunho({ fim: 'meio-dia' })).fim).toBeDefined()
@@ -59,6 +72,72 @@ describe('validarRascunho', () => {
     expect(validarRascunho(rascunho({ deslocamento: '-5' })).deslocamento).toBeDefined()
     expect(validarRascunho(rascunho({ deslocamento: '1,5' })).deslocamento).toBeDefined()
     expect(validarRascunho(rascunho({ deslocamento: '600' })).deslocamento).toBeDefined()
+  })
+})
+
+describe('validarRascunho de evento fixo', () => {
+  function fixo(alteracoes: Partial<RascunhoEvento> = {}) {
+    return rascunho({ tipo: 'fixo', ...alteracoes })
+  }
+
+  it('exige pelo menos um dia da semana', () => {
+    expect(validarRascunho(fixo({ diasDaSemana: [] })).diasDaSemana).toBeDefined()
+    expect(validarRascunho(fixo({ diasDaSemana: [1, 3] })).diasDaSemana).toBeUndefined()
+  })
+
+  it('exige validade coerente', () => {
+    expect(validarRascunho(fixo({ validoDe: 'nunca' })).validoDe).toBeDefined()
+    expect(
+      validarRascunho(fixo({ validoDe: '2026-12-01', validoAte: '2026-09-01' })).validoAte,
+    ).toBeDefined()
+    // Um único dia de validade é válido: um semestre de uma aula só.
+    expect(
+      validarRascunho(fixo({ validoDe: '2026-09-01', validoAte: '2026-09-01' })).validoAte,
+    ).toBeUndefined()
+  })
+})
+
+describe('montarEvento', () => {
+  it('descarta os campos do outro tipo', () => {
+    const pontual = montarEvento(rascunho({ nome: '  Aula  ' }), 'x')
+    expect(pontual).toEqual({
+      tipo: 'pontual',
+      id: 'x',
+      nome: 'Aula',
+      categoria: 'pessoal',
+      data: '2026-09-17',
+      inicio: '19:30',
+      fim: '22:30',
+      deslocamento: 25,
+    })
+    expect(pontual).not.toHaveProperty('diasDaSemana')
+  })
+
+  it('ordena dias e exceções, e não guarda a data do rascunho', () => {
+    const fixo = montarEvento(
+      rascunho({
+        tipo: 'fixo',
+        diasDaSemana: [4, 1, 2],
+        excecoes: ['2026-12-25', '2026-10-12'],
+      }),
+      'y',
+    )
+    expect(fixo).toMatchObject({
+      tipo: 'fixo',
+      diasDaSemana: [1, 2, 4],
+      excecoes: ['2026-10-12', '2026-12-25'],
+    })
+    expect(fixo).not.toHaveProperty('data')
+  })
+
+  it('copia as listas em vez de compartilhá-las com o rascunho', () => {
+    const original = rascunho({ tipo: 'fixo', diasDaSemana: [3], excecoes: ['2026-10-12'] })
+    const evento = montarEvento(original, 'z')
+
+    original.diasDaSemana.push(5)
+    original.excecoes.push('2026-11-02')
+
+    expect(evento).toMatchObject({ diasDaSemana: [3], excecoes: ['2026-10-12'] })
   })
 })
 
