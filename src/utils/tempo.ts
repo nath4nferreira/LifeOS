@@ -124,3 +124,17 @@ export function formatarDataCurta(data: string): string {
   const d = paraDataUTC(data)
   return `${DIAS_DA_SEMANA[d.getUTCDay()]} ${d.getUTCDate()} ${MESES[d.getUTCMonth()]}`
 }
+
+/**
+ * Como a pessoa chamaria esse dia: "Hoje", "Amanhã", "Ontem" ou a data curta.
+ *
+ * Correspondência com o mundo real (heurística 2): ninguém diz "estou vendo
+ * qui 17 set", diz "estou vendo hoje". Os três dias vizinhos ganham nome
+ * porque são os únicos que se contam a partir de hoje sem pensar.
+ */
+export function rotuloDoDia(data: string, hoje: string): string {
+  if (data === hoje) return 'Hoje'
+  if (data === somarDias(hoje, 1)) return 'Amanhã'
+  if (data === somarDias(hoje, -1)) return 'Ontem'
+  return formatarDataCurta(data)
+}

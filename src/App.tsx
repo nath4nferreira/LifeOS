@@ -4,7 +4,9 @@ import { eventosDoDia } from './core/seletor'
 import { useEventos } from './hooks/useEventos'
 import { PREVISAO_DE_DEMONSTRACAO } from './services/demonstracao'
 import { hojeISO } from './services/relogio'
+import { somarDias } from './utils/tempo'
 import { FaixaDeStatus } from './components/FaixaDeStatus'
+import { SeletorDeData } from './components/SeletorDeData'
 import { Veredito } from './components/Veredito'
 import { PainelDeInsights } from './components/PainelDeInsights'
 import { TrilhaDoDia } from './components/TrilhaDoDia'
@@ -24,8 +26,16 @@ function App() {
   const [dispensados, setDispensados] = useState<string[]>([])
   const { eventos, carregando, erro, criar, atualizar, remover } = useEventos()
 
+  // `hoje` é lido uma vez por render e nunca vira estado: é o dia de verdade.
+  // `data` é o dia que a tela mostra, e os dois são coisas diferentes.
   const hoje = hojeISO()
-  const doDia = eventosDoDia(eventos, hoje)
+  const [data, setData] = useState(hoje)
+  const doDia = eventosDoDia(eventos, data)
+
+  // A previsão que temos é a de hoje. Em qualquer outro dia o contexto de
+  // clima é honestamente ausente, e as regras 3 e 4 simplesmente não opinam —
+  // é o mesmo caminho de degradação de quando a API de clima falha.
+  const previsao = data === hoje ? PREVISAO : null
 
   // A trilha entrega o id da ocorrência, que é o id do evento de origem. Se o
   // evento sumiu (excluído em outra aba), `editando` volta a ser indefinido e
@@ -35,6 +45,23 @@ function App() {
   function irPara(destino: Aba) {
     setEditandoId(null)
     setAba(destino)
+  }
+
+  /** Trocar de dia sai da edição: o evento aberto era do dia anterior. */
+  function mudarData(nova: string) {
+    setEditandoId(null)
+    setData(nova)
+    // Cada dia tem seus próprios insights, então os dispensados do dia
+    // anterior não têm por que continuar escondidos.
+    setDispensados([])
+  }
+
+  function avancarDias(dias: number) {
+    setEditandoId(null)
+    setDispensados([])
+    // Partir do valor atual, e não de `data`: toques rápidos na seta precisam
+    // se acumular em vez de recalcular todos a partir da mesma renderização.
+    setData((atual) => somarDias(atual, dias))
   }
 
   function editar(id: string) {
@@ -47,7 +74,7 @@ function App() {
     setAba('dia')
   }
 
-  const insights = gerarInsights(doDia, PREVISAO)
+  const insights = gerarInsights(doDia, previsao)
   const { comprometido, emAberto } = resumoDoDia(doDia)
   const veredito = vereditoDoDia(insights, comprometido)
 
@@ -56,7 +83,13 @@ function App() {
 
   return (
     <div className="app-shell">
-      <FaixaDeStatus data={hoje} previsao={PREVISAO} />
+      <FaixaDeStatus data={data} previsao={previsao} />
+      <SeletorDeData
+        data={data}
+        hoje={hoje}
+        aoMudar={mudarData}
+        aoAvancar={avancarDias}
+      />
 
       <main className="app-conteudo">
         {/* Visibilidade do estado do sistema (heurística 1): carregar e
@@ -97,7 +130,7 @@ function App() {
           // em vez de manter o estado do anterior.
           <FormularioEvento
             key={editando?.id ?? 'novo'}
-            data={hoje}
+            data={data}
             doDia={doDia}
             evento={editando}
             aoSalvar={editando ? atualizar : criar}

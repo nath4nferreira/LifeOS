@@ -15,6 +15,15 @@
   padding: 0;
 }
 
+.trilha-vazia {
+  margin: 0;
+  padding: 20px 16px;
+  border: 1px dashed var(--linha-forte);
+  border-radius: var(--raio);
+  font-size: 0.875rem;
+  color: var(--apagado);
+}
+
 .trilha-evento,
 .trilha-vao {
   display: flex;

@@ -43,7 +43,15 @@ export function TrilhaDoDia({ eventos, aoEditar }: TrilhaDoDiaProps) {
       <h2 id="trilha-titulo" className="trilha-titulo">
         Seu dia em escala
       </h2>
-      <ol className="trilha-lista">{itens}</ol>
+      {/* Dia vazio não é a mesma coisa que tela quebrada (heurística 1): o
+          texto diz que está vazio de propósito, e diz o que fazer com isso. */}
+      {eventos.length === 0 ? (
+        <p className="trilha-vazia">
+          Nenhum compromisso neste dia. O dia inteiro é seu.
+        </p>
+      ) : (
+        <ol className="trilha-lista">{itens}</ol>
+      )}
     </section>
   )
 }

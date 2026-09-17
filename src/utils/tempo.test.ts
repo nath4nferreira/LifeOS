@@ -8,6 +8,7 @@ import {
   horarioValido,
   paraHorario,
   paraMinutos,
+  rotuloDoDia,
   somarDias,
 } from './tempo'
 
@@ -152,5 +153,25 @@ describe('formatarDataCurta', () => {
   it('formata como na faixa de status', () => {
     expect(formatarDataCurta('2026-09-17')).toBe('qui 17 set')
     expect(formatarDataCurta('2026-01-05')).toBe('seg 5 jan')
+  })
+})
+
+describe('rotuloDoDia', () => {
+  const hoje = '2026-09-17'
+
+  it('dá nome aos três dias vizinhos', () => {
+    expect(rotuloDoDia('2026-09-16', hoje)).toBe('Ontem')
+    expect(rotuloDoDia(hoje, hoje)).toBe('Hoje')
+    expect(rotuloDoDia('2026-09-18', hoje)).toBe('Amanhã')
+  })
+
+  it('o resto é data mesmo', () => {
+    expect(rotuloDoDia('2026-09-19', hoje)).toBe('sáb 19 set')
+    expect(rotuloDoDia('2026-09-15', hoje)).toBe('ter 15 set')
+  })
+
+  it('funciona na virada do mês e do ano', () => {
+    expect(rotuloDoDia('2026-10-01', '2026-09-30')).toBe('Amanhã')
+    expect(rotuloDoDia('2025-12-31', '2026-01-01')).toBe('Ontem')
   })
 })

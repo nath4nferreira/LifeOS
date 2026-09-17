@@ -1,0 +1,63 @@
+.seletor-data {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--linha);
+  background: var(--superficie);
+}
+
+.seletor-data-seta {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: var(--raio);
+  background: none;
+  color: var(--apagado);
+  cursor: pointer;
+}
+
+.seletor-data-seta:hover {
+  background: var(--superficie-2);
+  color: var(--tinta);
+}
+
+/* Os atalhos ocupam o meio e dividem o espaço em partes iguais: os dois botões
+   ficam com a mesma largura, e o terceiro (quando o usuário navegou para longe)
+   entra sem empurrar os outros para fora da tela em 320px. */
+.seletor-data-atalhos {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+  min-width: 0;
+}
+
+.seletor-data-atalho {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--raio);
+  background: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--apagado);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+/* O dia selecionado tem fundo cheio E peso maior E `aria-current`: a cor é a
+   terceira pista, nunca a única. */
+.seletor-data-atalho[aria-current] {
+  border-color: var(--tinta);
+  background: var(--tinta);
+  font-weight: 700;
+  color: var(--superficie);
+}
