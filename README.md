@@ -99,6 +99,7 @@ scripts/
 src/
 ├── core/                 # LÓGICA PURA — sem React, sem DOM, sem I/O
 │   ├── insights.ts       # as 7 regras, o veredito, a carga por área
+│   ├── visao-do-dia.ts   # compõe seleção, regras e resumo para a interface
 │   ├── seletor.ts        # eventosDoDia(): achata a recorrência
 │   ├── trilha.ts         # posição do marcador de "agora"
 │   └── validacao.ts      # rascunho → evento, erros, sobreposições
@@ -124,7 +125,7 @@ src/
 
 Isso não é purismo: existe a intenção de portar o produto para Flutter, e essas
 duas pastas são a parte que sobrevive à troca de interface. Os testes delas —
-`insights.test.ts`, `seletor.test.ts`, `trilha.test.ts`, `validacao.test.ts`,
+`insights.test.ts`, `visao-do-dia.test.ts`, `seletor.test.ts`, `trilha.test.ts`, `validacao.test.ts`,
 `tempo.test.ts` — são a **especificação** do port. Um LifeOS em Dart deve
 passar nos mesmos casos.
 

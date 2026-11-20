@@ -1,11 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import {
-  gerarInsights,
-  insightsDeTransicao,
-  resumoDoDia,
-  vereditoDoDia,
-} from './core/insights'
-import { eventosDoDia } from './core/seletor'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { criarVisaoDoDia } from './core/visao-do-dia'
 import { useAgora } from './hooks/useAgora'
 import { useEventos } from './hooks/useEventos'
 import { useMedia } from './hooks/useMedia'
@@ -47,7 +41,6 @@ function App() {
   // `data` é o dia que a tela mostra, e os dois são coisas diferentes.
   const hoje = hojeISO()
   const [data, setData] = useState(hoje)
-  const doDia = eventosDoDia(eventos, data)
 
   // Foco depois de uma troca de tela que apaga o botão que a disparou.
   //
@@ -64,12 +57,6 @@ function App() {
   }, [pedidosDeFoco])
   const focarConteudo = () => setPedidosDeFoco((n) => n + 1)
 
-  // A regra 7 é a única que cruza dois dias, então é a única que precisa do
-  // dia seguinte. O motor a mantém fora de `gerarInsights` justamente porque
-  // aquele enxerga um dia só.
-  const seguinte = somarDias(data, 1)
-  const transicao = insightsDeTransicao(doDia, eventosDoDia(eventos, seguinte))
-
   // O clima real vem da rota serverless; o de exemplo só entra se o usuário
   // pedir, e nesse caso a faixa de status diz que é exemplo. Dado fabricado
   // nunca se disfarça de medido.
@@ -77,6 +64,16 @@ function App() {
   const clima = usePrevisao(data)
   const previsao = usandoExemplo ? PREVISAO_DE_DEMONSTRACAO : clima.previsao
   const estadoDoClima = usandoExemplo ? 'pronto' : clima.estado
+  const visao = useMemo(
+    () => criarVisaoDoDia(eventos, data, previsao),
+    [eventos, data, previsao],
+  )
+  const {
+    eventos: doDia,
+    dataSeguinte: seguinte,
+    insights,
+    insightsDeTransicao: transicao,
+  } = visao
 
   // A trilha entrega o id da ocorrência, que é o id do evento de origem. Se o
   // evento sumiu (excluído em outra aba), `editando` volta a ser indefinido e
@@ -116,10 +113,6 @@ function App() {
     setAba('dia')
     focarConteudo()
   }
-
-  const insights = gerarInsights(doDia, previsao)
-  const { comprometido, emAberto } = resumoDoDia(doDia)
-  const veredito = vereditoDoDia(insights, comprometido)
 
   const dispensar = (id: string) => setDispensados((atuais) => [...atuais, id])
   const restaurar = () => setDispensados([])
@@ -168,9 +161,9 @@ function App() {
         {!carregando && aba === 'dia' && (
           <>
             <Veredito
-              texto={veredito}
-              comprometido={comprometido}
-              emAberto={emAberto}
+              texto={visao.veredito}
+              comprometido={visao.comprometido}
+              emAberto={visao.emAberto}
               pontos={insights.length}
             />
             <PainelDeInsights
