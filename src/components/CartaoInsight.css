@@ -5,10 +5,11 @@
   --cartao-fundo: var(--info-fundo);
 
   padding: 14px 16px 16px;
-  border: 1px solid var(--linha);
+  border: 1px solid var(--brilho-vidro);
   border-left: 3px solid var(--cartao-cor);
-  border-radius: var(--raio);
-  background: var(--superficie);
+  border-radius: calc(var(--raio) + 2px);
+  background: linear-gradient(135deg, var(--vidro-forte), var(--cartao-fundo));
+  box-shadow: 0 7px 18px light-dark(rgb(69 52 61 / 0.07), rgb(0 0 0 / 0.14));
 }
 
 .cartao[data-nivel='critico'] {
@@ -86,7 +87,7 @@
   margin: 12px 0 0;
   padding: 10px 12px;
   border-radius: var(--raio);
-  background: var(--cartao-fundo);
+  background: color-mix(in srgb, var(--cartao-fundo) 84%, var(--superficie));
   font-size: 0.875rem;
   line-height: 1.45;
   color: var(--tinta);
@@ -106,7 +107,7 @@
 .cartao-base-item {
   padding: 3px 8px;
   border-radius: 999px;
-  background: var(--superficie-2);
+  background: color-mix(in srgb, var(--superficie-2) 70%, transparent);
   font-family: var(--mono);
   font-size: 0.6875rem;
   color: var(--apagado);
@@ -128,5 +129,6 @@
 }
 
 .cartao-acao:hover {
-  background: var(--superficie-2);
+  border-color: var(--cartao-cor);
+  background: var(--cartao-fundo);
 }

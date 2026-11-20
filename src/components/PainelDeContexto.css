@@ -8,8 +8,8 @@
   min-height: 0;
   overflow-y: auto;
   padding: 20px 20px 32px;
-  border-left: 1px solid var(--linha);
-  background: var(--superficie);
+  border-left: 1px solid var(--brilho-vidro);
+  background: var(--vidro-forte);
 }
 
 .contexto-titulo {

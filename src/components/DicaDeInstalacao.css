@@ -5,9 +5,10 @@
   gap: 12px;
   margin: 8px 20px 24px;
   padding: 12px 14px;
-  border: 1px solid var(--linha-forte);
-  border-radius: var(--raio);
-  background: var(--superficie);
+  border: 1px solid var(--brilho-vidro);
+  border-radius: calc(var(--raio) + 2px);
+  background: var(--vidro-forte);
+  box-shadow: var(--sombra-flutuante);
 }
 
 .dica-instalacao-texto {

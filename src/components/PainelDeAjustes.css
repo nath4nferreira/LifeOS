@@ -1,5 +1,10 @@
 .ajustes {
-  padding: 8px 20px 24px;
+  margin: 16px;
+  padding: 24px;
+  border: 1px solid var(--brilho-vidro);
+  border-radius: calc(var(--raio) + 4px);
+  background: var(--vidro);
+  box-shadow: var(--sombra-flutuante);
 }
 
 .ajustes-titulo {
@@ -54,9 +59,9 @@
    sempre, só trocado de lado — e `aria-pressed` diz a mesma coisa a quem não
    enxerga a inversão. */
 .ajustes-opcao[aria-pressed='true'] {
-  border-color: var(--tinta);
-  background: var(--tinta);
-  color: var(--superficie);
+  border-color: var(--acento);
+  background: var(--acento);
+  color: light-dark(#f8f1ea, #211f29);
   font-weight: 600;
 }
 
@@ -65,7 +70,7 @@
   padding: 0 14px;
   border: 1px solid var(--linha-forte);
   border-radius: var(--raio);
-  background: none;
+  background: var(--vidro);
   font: inherit;
   font-size: 0.8125rem;
   color: var(--tinta);

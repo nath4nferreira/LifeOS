@@ -1,11 +1,16 @@
 .veredito {
-  padding: 32px 20px 28px;
+  margin: 16px 16px 10px;
+  padding: 28px 24px 24px;
+  border: 1px solid var(--brilho-vidro);
+  border-radius: calc(var(--raio) + 8px);
+  background: linear-gradient(135deg, var(--vidro-forte), var(--acento-fundo));
+  box-shadow: var(--sombra-flutuante);
 }
 
 .veredito-titulo {
   margin: 0;
   max-width: 18ch;
-  font-size: clamp(2rem, 9vw, 3rem);
+  font-size: clamp(2.2rem, 9vw, 3.25rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -16,6 +21,7 @@
   margin: 14px 0 0;
   font-size: 0.9375rem;
   color: var(--apagado);
+  line-height: 1.6;
 }
 
 .veredito-numero {

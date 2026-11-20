@@ -30,14 +30,14 @@
   color-scheme: light dark;
 
   /* Superfícies e tinta */
-  --fundo: light-dark(#eef0f4, #10141a);
-  --superficie: light-dark(#ffffff, #171c24);
-  --superficie-2: light-dark(#e6e9ef, #1f252f);
-  --tinta: light-dark(#14181f, #e8ecf2);
+  --fundo: light-dark(#e9e1d8, #17161d);
+  --superficie: light-dark(#f7f0e9, #211f29);
+  --superficie-2: light-dark(#e9ddd2, #2b2935);
+  --tinta: light-dark(#2c2934, #f1edf4);
   /* #626b7a do briefing dava 4.42:1 sobre --superficie-2 e reprovava no
      mínimo de 4.5:1 da WCAG. Escurecido o suficiente para passar nas três
      superfícies (4.92:1 no pior caso) sem mudar a intenção do cinza frio. */
-  --apagado: light-dark(#5b6472, #8b95a5);
+  --apagado: light-dark(#69616d, #b2aab8);
 
   /* Duas espessuras de linha, e a diferença é semântica:
      --linha é separador decorativo (divisória entre itens, contorno de
@@ -45,22 +45,31 @@
      e a WCAG não exige contraste de elemento decorativo.
      --linha-forte é para borda que CARREGA INFORMAÇÃO: campo de formulário,
      botão, anel de foco. Passa o mínimo de 3:1 da WCAG 1.4.11. */
-  --linha: light-dark(#d3d8e0, #283040);
-  --linha-forte: light-dark(#767f8e, #6b7893);
+  --linha: light-dark(#ded6d3, #403c49);
+  --linha-forte: light-dark(#8b808d, #82798b);
+
+  --vidro: light-dark(rgb(248 241 234 / 0.78), rgb(33 31 41 / 0.76));
+  --vidro-forte: light-dark(rgb(248 241 234 / 0.92), rgb(38 35 48 / 0.9));
+  --brilho-vidro: light-dark(rgb(255 250 245 / 0.64), rgb(255 255 255 / 0.1));
+  --sombra-suave: light-dark(0 16px 42px rgb(81 63 72 / 0.12), 0 18px 48px rgb(0 0 0 / 0.24));
+  --sombra-flutuante: light-dark(0 8px 22px rgb(81 63 72 / 0.14), 0 9px 25px rgb(0 0 0 / 0.3));
+  --acento: light-dark(#76619b, #c9b3f2);
+  --acento-fundo: light-dark(#ede6fb, #393049);
 
   /* Níveis de insight. Cada par é usado junto: texto sobre o fundo da dupla. */
-  --critico: light-dark(#a4232b, #ff8a8a);
-  --critico-fundo: light-dark(#fbeaeb, #2a1719);
-  --atencao: light-dark(#8a4d00, #e5a54d);
-  --atencao-fundo: light-dark(#fbf0e2, #291f12);
-  --info: light-dark(#2a5f9e, #7fb3e8);
-  --info-fundo: light-dark(#e8eff8, #141f2c);
-  --bom: light-dark(#1a6b50, #6ecfa8);
-  --bom-fundo: light-dark(#e5f2ed, #12241d);
+  --critico: light-dark(#a23e52, #ff9fae);
+  --critico-fundo: light-dark(#fbeaec, #351d26);
+  --atencao: light-dark(#95621a, #f2c26f);
+  --atencao-fundo: light-dark(#fbf1df, #332717);
+  --info: light-dark(#5d5aa0, #bdb9ff);
+  --info-fundo: light-dark(#eeecfb, #272540);
+  --bom: light-dark(#28705b, #78d4b0);
+  --bom-fundo: light-dark(#e8f4ee, #183229);
 
   --sans: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
-  --raio: 6px;
+  --raio: 14px;
+  --raio-pequeno: 10px;
 }
 
 /**

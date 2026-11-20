@@ -3,8 +3,8 @@
   align-items: center;
   gap: 4px;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--linha);
-  background: var(--superficie);
+  border-bottom: 1px solid var(--brilho-vidro);
+  background: var(--vidro-forte);
 }
 
 .seletor-data-seta {
@@ -22,7 +22,7 @@
 }
 
 .seletor-data-seta:hover {
-  background: var(--superficie-2);
+  background: var(--acento-fundo);
   color: var(--tinta);
 }
 
@@ -56,8 +56,9 @@
 /* O dia selecionado tem fundo cheio E peso maior E `aria-current`: a cor é a
    terceira pista, nunca a única. */
 .seletor-data-atalho[aria-current] {
-  border-color: var(--tinta);
-  background: var(--tinta);
+  border-color: var(--acento);
+  background: var(--acento);
   font-weight: 700;
-  color: var(--superficie);
+  color: light-dark(#f8f1ea, #211f29);
+  box-shadow: 0 4px 12px light-dark(rgb(118 97 155 / 0.24), rgb(0 0 0 / 0.24));
 }

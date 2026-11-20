@@ -4,11 +4,18 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 20px;
-  border-bottom: 1px solid var(--linha);
-  background: var(--superficie);
+  border-bottom: 1px solid var(--brilho-vidro);
+  background: var(--vidro-forte);
   font-family: var(--mono);
   font-size: 0.8125rem;
   color: var(--apagado);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .faixa-status {
+    -webkit-backdrop-filter: blur(18px) saturate(1.1);
+    backdrop-filter: blur(18px) saturate(1.1);
+  }
 }
 
 .faixa-status-clima {
@@ -32,12 +39,18 @@
   flex: 0 0 auto;
   min-height: 44px;
   padding: 0 8px;
-  border: none;
-  background: none;
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  background: var(--superficie);
   font-family: var(--sans);
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--tinta);
-  text-decoration: underline;
+  text-decoration: none;
   cursor: pointer;
+}
+
+.faixa-status-acao:hover {
+  border-color: var(--acento);
+  background: var(--acento-fundo);
 }

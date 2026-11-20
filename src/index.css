@@ -18,13 +18,27 @@ body,
 body {
   margin: 0;
   font-family: var(--sans);
-  background: var(--fundo);
+  background:
+    radial-gradient(circle at 8% 2%, light-dark(rgb(229 211 247 / 0.82), rgb(84 60 109 / 0.3)) 0, transparent 27rem),
+    radial-gradient(circle at 92% 12%, light-dark(rgb(255 220 185 / 0.62), rgb(101 65 47 / 0.22)) 0, transparent 25rem),
+    var(--fundo);
   color: var(--tinta);
   -webkit-font-smoothing: antialiased;
 }
 
 button {
   font-family: inherit;
+}
+
+button,
+input,
+select {
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease,
+    color 160ms ease, transform 160ms ease;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 /**

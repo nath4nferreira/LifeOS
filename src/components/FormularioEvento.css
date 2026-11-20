@@ -1,5 +1,10 @@
 .formulario {
-  padding: 24px 20px;
+  margin: 16px;
+  padding: 24px;
+  border: 1px solid var(--brilho-vidro);
+  border-radius: calc(var(--raio) + 4px);
+  background: var(--vidro);
+  box-shadow: var(--sombra-flutuante);
 }
 
 .formulario-titulo {
@@ -50,7 +55,7 @@
   padding: 0 12px;
   border: 1px solid var(--linha-forte);
   border-radius: var(--raio);
-  background: var(--superficie);
+  background: color-mix(in srgb, var(--superficie) 86%, transparent);
   font-family: var(--sans);
   font-size: 1rem;
   color: var(--tinta);
@@ -66,6 +71,12 @@ input[type='number'].campo-controle {
 .campo-controle[aria-invalid] {
   border-color: var(--critico);
   border-width: 2px;
+}
+
+.campo-controle:focus {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--acento) 20%, transparent);
+  outline: none;
 }
 
 .campo-dica {
@@ -99,12 +110,13 @@ input[type='number'].campo-controle {
 
 .formulario-salvar {
   min-height: 48px;
-  border: 1px solid var(--tinta);
+  border: 1px solid var(--acento);
   border-radius: var(--raio);
-  background: var(--tinta);
+  background: linear-gradient(135deg, var(--acento), color-mix(in srgb, var(--acento) 75%, var(--tinta)));
   font-size: 1rem;
   font-weight: 700;
-  color: var(--superficie);
+  color: light-dark(#f8f1ea, #211f29);
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--acento) 26%, transparent);
   cursor: pointer;
 }
 
@@ -128,7 +140,7 @@ input[type='number'].campo-controle {
   padding: 0 14px;
   border: 1px solid var(--linha-forte);
   border-radius: var(--raio);
-  background: none;
+  background: var(--vidro);
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--tinta);
@@ -228,8 +240,8 @@ input[type='number'].campo-controle {
 
 /* Marcado: fundo cheio além do ponto do rádio, que continua visível. */
 .formulario-tipo-opcao:has(input:checked) {
-  background: var(--superficie-2);
-  border-color: var(--tinta);
+  background: var(--acento-fundo);
+  border-color: var(--acento);
 }
 
 /* A caixa de seleção do dia é invisível, então o foco precisa aparecer no
@@ -270,9 +282,9 @@ input[type='number'].campo-controle {
 }
 
 .formulario-dia:has(input:checked) {
-  border-color: var(--tinta);
-  background: var(--tinta);
-  color: var(--superficie);
+  border-color: var(--acento);
+  background: var(--acento);
+  color: light-dark(#f8f1ea, #211f29);
 }
 
 .formulario-excecoes {

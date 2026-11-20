@@ -1,9 +1,9 @@
 .painel {
-  padding: 4px 20px 20px;
+  padding: 10px 16px 20px;
 }
 
 .painel-titulo {
-  margin: 0 0 12px;
+  margin: 0 4px 12px;
   font-size: 0.9375rem;
   font-weight: 700;
   color: var(--tinta);
@@ -29,7 +29,7 @@
   margin-top: 10px;
   border: 1px dashed var(--linha-forte);
   border-radius: var(--raio);
-  background: none;
+  background: var(--vidro);
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--apagado);
@@ -37,7 +37,9 @@
 }
 
 .painel-mais:hover {
+  border-color: var(--acento);
   color: var(--tinta);
+  background: var(--acento-fundo);
 }
 
 /* A região viva existe mesmo vazia: um `aria-live` só é anunciado se já
@@ -70,5 +72,5 @@
 }
 
 .painel-desfazer-acao:hover {
-  background: var(--superficie-2);
+  background: var(--acento-fundo);
 }
